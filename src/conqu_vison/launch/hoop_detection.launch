@@ -1,0 +1,46 @@
+<!-- src/conqu_vison/launch/backboard_detection.launch -->
+<launch>
+  <!-- 加载配置文件 -->
+  <rosparam command="load" file="$(find conqu_vison)/config/conqu_vison_params.yaml" />
+
+  <!-- 启动Orbbec相机 -->
+  <include file="$(find orbbec_camera)/launch/gemini_330_series.launch">
+    <!-- 点云相关参数 -->
+    <arg name="enable_point_cloud" value="true"/>
+    <arg name="enable_colored_point_cloud" value="true"/>
+    <arg name="depth_registration" value="true"/>
+    <arg name="ordered_pc" value="true"/>
+    
+    <!-- 相机流参数 -->
+    <arg name="enable_depth" value="true"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="enable_left_ir" value="false"/>
+    <arg name="enable_right_ir" value="false"/>
+    
+    <!-- 相机分辨率和帧率 -->
+    <arg name="color_width" value="1280"/>
+    <arg name="color_height" value="720"/>
+    <arg name="color_fps" value="30"/>
+    <arg name="depth_width" value="640"/>
+    <arg name="depth_height" value="480"/>
+    <arg name="depth_fps" value="30"/>
+    
+    <!-- 点云滤波参数 -->
+    <arg name="enable_noise_removal_filter" value="true"/>
+    <arg name="enable_spatial_filter" value="true"/>
+    <arg name="enable_temporal_filter" value="true"/>
+    
+    <!-- 其他参数 -->
+    <arg name="publish_tf" value="true"/>
+    <arg name="tf_publish_rate" value="10.0"/>
+  </include>
+  
+  <!-- 启动篮框检测节点 -->
+  <node name="hoop_cloud_processor" pkg="conqu_vison" type="hoop_cloud_processor" output="screen" />
+  
+  <!-- 启动篮框底部点云提取节点 -->
+  <node name="hoop_bottom_extractor" pkg="conqu_vison" type="hoop_bottom_extractor" output="screen" />
+  
+  <!-- 启动RViz进行可视化 -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find conqu_vison)/rviz/hoop_detection.rviz" />
+</launch>
