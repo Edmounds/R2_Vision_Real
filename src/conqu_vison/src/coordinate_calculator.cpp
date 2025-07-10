@@ -1,13 +1,15 @@
 #include "conqu_vison/coordinate_calculator.h"  
 
-CoordinateCalculator::CoordinateCalculator() : private_nh_("~"), 
-                        first_measurement_(true),
-                        smoothing_factor_(0.7) // 默认平滑因子，0.7表示新值占70%
+CoordinateCalculator::CoordinateCalculator() : 
+    private_nh_("~"), 
+    first_measurement_(true),
+    smoothing_factor_(0.7),
+    tf_listener_(tf_buffer_)  // 初始化TF监听器
 {
     // 加载参数
     loadParameters();
     
-    // 订阅篮框位姿 - 已修改话题名称
+    // 订阅篮框位姿
     hoop_pose_sub_ = nh_.subscribe("/hoop_pose", 1, 
                                   &CoordinateCalculator::hoopPoseCallback, this);
     
@@ -16,8 +18,9 @@ CoordinateCalculator::CoordinateCalculator() : private_nh_("~"),
     distance_vector_pub_ = nh_.advertise<geometry_msgs::Vector3Stamped>("/hoop_distance_vector", 1);
     adjusted_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/hoop_adjusted_pose", 1);
     distance_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("/distance_marker", 1);
+    transformed_pose_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/hoop_pose_transformed", 1);
     
-    ROS_INFO("Coordinate calculator initialized");
+    ROS_INFO("Coordinate calculator initialized with TF support");
 }
 
 void CoordinateCalculator::loadParameters()
@@ -33,19 +36,39 @@ void CoordinateCalculator::loadParameters()
     
     // 是否使用篮筐高度校正
     private_nh_.param<bool>("use_rim_height_correction", use_rim_height_correction_, true);
-    private_nh_.param<double>("rim_z_offset", rim_z_offset_, 0.10); // 篮筐高度与检测到的篮板中心的垂直偏移
+    private_nh_.param<double>("rim_z_offset", rim_z_offset_, 0.10);
+    
+    // 获取目标坐标系参数，默认为"base_link"
+    private_nh_.param<std::string>("target_frame", target_frame_, "base_link");
     
     ROS_INFO("Parameters loaded:");
     ROS_INFO("Hoop rim height: %.2f m", hoop_rim_height_);
     ROS_INFO("Camera height: %.2f m", camera_height_);
     ROS_INFO("Use rim height correction: %s", use_rim_height_correction_ ? "true" : "false");
     ROS_INFO("Rim Z offset from backboard center: %.2f m", rim_z_offset_);
+    ROS_INFO("Target frame for transformation: %s", target_frame_.c_str());
 }
 
-// 回调函数改名为hoopPoseCallback
 void CoordinateCalculator::hoopPoseCallback(const geometry_msgs::PoseStamped::ConstPtr& pose_msg)
 {
-    // 获取篮框在相机坐标系中的位置
+    // 将位姿从相机坐标系转换到目标坐标系
+    geometry_msgs::PoseStamped transformed_pose;
+    if (transformPose(*pose_msg, transformed_pose, target_frame_)) {
+        // 发布转换后的位姿
+        transformed_pose_pub_.publish(transformed_pose);
+        
+        ROS_INFO_THROTTLE(1.0, "Transformed hoop position: [%.2f, %.2f, %.2f] in %s frame", 
+                transformed_pose.pose.position.x,
+                transformed_pose.pose.position.y,
+                transformed_pose.pose.position.z,
+                target_frame_.c_str());
+    } else {
+        // 如果转换失败，可以选择使用上一次有效的转换结果或者跳过本次处理
+        return;
+    }
+    
+
+    // 获取篮框在相机坐标系中的位置 (使用原始位姿进行距离计算)
     double hoop_x = pose_msg->pose.position.x;
     double hoop_y = pose_msg->pose.position.y;
     double hoop_z = pose_msg->pose.position.z;
@@ -164,4 +187,34 @@ void CoordinateCalculator::visualizeDistance(const ros::Time& stamp, const std::
     marker.lifetime = ros::Duration(0.1);  // 100ms
     
     distance_marker_pub_.publish(marker);
+}
+
+bool CoordinateCalculator::transformPose(const geometry_msgs::PoseStamped& input_pose, 
+                                         geometry_msgs::PoseStamped& output_pose,
+                                         const std::string& target_frame)
+{
+    try {
+        // 设置超时时间，这里使用ROS参数服务器中的值或默认值
+        double timeout;
+        private_nh_.param<double>("tf_timeout", timeout, 0.5);
+        
+        // 检查是否可以进行转换
+        if(!tf_buffer_.canTransform(target_frame, input_pose.header.frame_id, 
+                                   input_pose.header.stamp, ros::Duration(timeout))) {
+            ROS_WARN_THROTTLE(1.0, "Cannot transform from %s to %s, waiting for transform...", 
+                    input_pose.header.frame_id.c_str(), target_frame.c_str());
+            return false;
+        }
+        
+        // 执行转换
+        tf_buffer_.transform(input_pose, output_pose, target_frame);
+        
+        ROS_DEBUG("Successfully transformed pose from %s to %s", 
+                input_pose.header.frame_id.c_str(), target_frame.c_str());
+        return true;
+    }
+    catch (tf2::TransformException &ex) {
+        ROS_WARN_THROTTLE(1.0, "Transform failed: %s", ex.what());
+        return false;
+    }
 }

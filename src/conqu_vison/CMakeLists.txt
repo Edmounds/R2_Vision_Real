@@ -14,12 +14,12 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
 )
 
-## 声明消息文件
-add_message_files(
-  FILES
-  HoopCoordinates.msg
-  HoopDetection.msg
-)
+# ## 声明消息文件
+# add_message_files(
+#   FILES
+#   HoopCoordinates.msg
+#   HoopDetection.msg
+# )
 
 ## 生成消息
 generate_messages(

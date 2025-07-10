@@ -6,7 +6,7 @@
 #include <geometry_msgs/Vector3Stamped.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <visualization_msgs/Marker.h>
-#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_ros/transform_listener.h>  // 添加TF2
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <cmath>
 #include <string>
@@ -28,9 +28,14 @@ private:
     double camera_height_;          // 相机高度
     bool use_rim_height_correction_; // 是否使用篮筐高度校正
     double rim_z_offset_;           // 篮筐Z轴偏移
+    std::string target_frame_;      // 目标坐标系
     
     // 篮筐在世界坐标系中的预期高度
     double expected_rim_world_z_;
+    
+    // TF2相关
+    tf2_ros::Buffer tf_buffer_;
+    tf2_ros::TransformListener tf_listener_;
     
     // ROS订阅者和发布者
     ros::Subscriber hoop_pose_sub_;  // 篮框位姿订阅者
@@ -38,6 +43,7 @@ private:
     ros::Publisher distance_vector_pub_; // 距离向量发布者
     ros::Publisher adjusted_pose_pub_;   // 调整后位姿发布者
     ros::Publisher distance_marker_pub_; // 距离标记发布者
+    ros::Publisher transformed_pose_pub_;  // 发布转换后的位姿
     
     // 上一次发布的距离，用于滤波
     double last_distance_x_;
@@ -73,6 +79,18 @@ public:
      */
     void visualizeDistance(const ros::Time& stamp, const std::string& frame_id,
                           double x, double y, double z);
+    
+private:
+    /**
+     * @brief 转换坐标系
+     * @param input_pose 输入位姿
+     * @param output_pose 输出位姿
+     * @param target_frame 目标坐标系
+     * @return 转换是否成功
+     */
+    bool transformPose(const geometry_msgs::PoseStamped& input_pose, 
+                      geometry_msgs::PoseStamped& output_pose,
+                      const std::string& target_frame);
 };
 
 #endif // COORDINATE_CALCULATOR_H
