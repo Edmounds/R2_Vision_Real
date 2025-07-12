@@ -1,0 +1,32 @@
+# 篮球框检测参数
+basket_detection:
+  # 篮板底部距地面高度(m)
+  basket_height: 2.285
+  # 篮板长度(m)
+  basket_length: 1.8
+  # 篮板底部边缘线宽度(m)
+  basket_width: 0.05
+  # 高度容差(m)
+  height_tolerance: 0.05
+  # 尺寸容差(m)
+  size_tolerance: 0.2
+  
+# 相机参数
+camera:
+  name: "camera"
+  depth_width: 640
+  depth_height: 480
+  depth_fps: 30
+  color_width: 640
+  color_height: 480
+  color_fps: 30
+  enable_point_cloud: true
+  enable_depth: true
+  enable_color: true
+  depth_registration: false
+  enable_noise_removal_filter: true
+
+# 相机安装参数
+camera_mount:
+  height: 1.02       # 相机距地面高度(m)
+  tilt_angle: -0.785 # 相机朝向上倾斜45度(弧度)

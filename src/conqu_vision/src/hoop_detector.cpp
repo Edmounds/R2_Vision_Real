@@ -22,12 +22,22 @@ class BasketDetector
 public:
   BasketDetector() : tf_buffer_(ros::Duration(10))
   {
-  // 参数设置
-  basket_height_ = 2.285;  // 篮板底部距地面高度(m)
-  basket_length_ = 1.8;    // 篮板长度(m)
-  basket_width_ = 0.05;    // 篮板底部边缘线宽度(m)，不是篮板高度
-  height_tolerance_ = 0.05; 
-  size_tolerance_ = 0.2;   // 尺寸容差(m)
+    ros::NodeHandle nh_private("~");
+    
+    // 从参数服务器读取参数
+    nh_private.param<float>("/basket_detection/basket_height", basket_height_, 2.285);
+    nh_private.param<float>("/basket_detection/basket_length", basket_length_, 1.8);
+    nh_private.param<float>("/basket_detection/basket_width", basket_width_, 0.05);
+    nh_private.param<float>("/basket_detection/height_tolerance", height_tolerance_, 0.05);
+    nh_private.param<float>("/basket_detection/size_tolerance", size_tolerance_, 0.2);
+    
+    // 打印读取的参数值，用于调试
+    ROS_INFO("Loaded parameters:");
+    ROS_INFO("  basket_height: %.3f", basket_height_);
+    ROS_INFO("  basket_length: %.3f", basket_length_);
+    ROS_INFO("  basket_width: %.3f", basket_width_);
+    ROS_INFO("  height_tolerance: %.3f", height_tolerance_);
+    ROS_INFO("  size_tolerance: %.3f", size_tolerance_);
  
     // 设置TF监听器
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(tf_buffer_);

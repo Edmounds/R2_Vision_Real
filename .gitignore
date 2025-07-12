@@ -1,2 +1,5 @@
 build/
 devel/
+*.7z
+*.zip
+*.tar.gz
