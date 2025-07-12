@@ -61,6 +61,13 @@
         <box size="1.8 0.03 1.05"/>
       </geometry>
     </collision>
+    
+    <!-- 添加惯性属性 -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="50"/>
+      <inertia ixx="4.6" ixy="0.0" ixz="0.0" iyy="13.5" iyz="0.0" izz="9.0"/>
+    </inertial>
   </link>
 
   <joint name="backboard_joint" type="fixed">
@@ -88,6 +95,12 @@
         <cylinder radius="0.1" length="2.665"/>
       </geometry>
     </collision>
+    
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="100"/>
+      <inertia ixx="60.0" ixy="0.0" ixz="0.0" iyy="60.0" iyz="0.0" izz="1.0"/>
+    </inertial>
   </link>
 
   <joint name="pole_joint" type="fixed">
@@ -135,5 +148,9 @@
     <child link="base_link"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
+
+  <gazebo>
+    <static>true</static>
+  </gazebo>
 
 </robot>

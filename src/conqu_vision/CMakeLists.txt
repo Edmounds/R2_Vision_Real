@@ -14,11 +14,20 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   tf2
+  tf2_ros
+  tf2_sensor_msgs
   tf2_geometry_msgs
+  pcl_conversions
+  pcl_ros
 )
 
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
+
+find_package(PCL REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -112,8 +121,8 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES conqu_lightstrip_sim
-  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_geometry_msgs
-#  DEPENDS system_lib
+  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros
+  DEPENDS PCL
 )
 
 ###########
@@ -141,6 +150,14 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/conqu_localization_node.cpp)
+
+# 添加篮球框识别节点
+add_executable(hoop_detector src/hoop_detector.cpp)
+add_dependencies(hoop_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(hoop_detector
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

@@ -53,4 +53,7 @@
   <!-- 添加RViz可视化 -->
   <arg name="rvizconfig" default="$(find conqu_vision)/rviz/default.rviz" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+  
+  <!-- 启动篮球框检测节点 -->
+  <node name="hoop_detector_cpp" pkg="conqu_vision" type="hoop_detector" output="screen" />
 </launch>
