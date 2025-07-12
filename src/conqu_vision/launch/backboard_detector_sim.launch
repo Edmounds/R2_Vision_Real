@@ -22,9 +22,9 @@
   <param name="robot_description" textfile="$(find conqu_vision)/models/r2.model" />
   
   <!-- Spawn a robot into Gazebo -->
-  <group ns="hoop">
-    <node name="spawn_hoop" pkg="gazebo_ros" type="spawn_model" 
-            args="-file $(find conqu_vision)/models/hoop.model -urdf -model hoop -x 5 -Y -1.5708" />
+  <group ns="backboard">
+    <node name="spawn_backboard" pkg="gazebo_ros" type="spawn_model" 
+            args="-file $(find conqu_vision)/models/backboard.model -urdf -model backboard -x 5 -Y -1.5708" />
   </group>
   
   <group ns="r2">
@@ -55,5 +55,5 @@
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
   
   <!-- 启动篮球框检测节点 -->
-  <node name="hoop_detector_cpp" pkg="conqu_vision" type="hoop_detector" output="screen" />
+  <node name="backboard_detector_cpp" pkg="conqu_vision" type="backboard_detector" output="screen" />
 </launch>

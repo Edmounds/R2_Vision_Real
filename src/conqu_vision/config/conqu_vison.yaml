@@ -1,18 +1,38 @@
 # 篮球框检测参数
-basket_detection:
+backboard_detection:
   # 篮板底部距地面高度(m)
-  basket_height: 2.285
+  backboard_height: 2.285
   # 篮板长度(m)
-  basket_length: 1.8
+  backboard_length: 1.8
   # 篮板底部边缘线宽度(m)
-  basket_width: 0.05
+  backboard_width: 0.05
   # 高度容差(m)
-  height_tolerance: 0.05
+  height_tolerance: 0.1
   # 尺寸容差(m)
   size_tolerance: 0.2
   
+# 深度图像处理参数
+depth_processing:
+  # 中值滤波核大小
+  median_blur_ksize: 5
+  # 深度阈值
+  depth_threshold: 150.0
+  # Canny边缘检测参数
+  canny_threshold1: 50.0
+  canny_threshold2: 150.0
+  # 轮廓筛选参数
+  min_aspect_ratio: 1.5
+  max_aspect_ratio: 3.0
+  min_area: 1000.0
+  
 # 相机参数
 camera:
+  # 内参
+  fx: 460.587
+  fy: 460.748
+  cx: 327.796
+  cy: 243.640
+  # 其他相机参数
   name: "camera"
   depth_width: 640
   depth_height: 480
@@ -23,10 +43,10 @@ camera:
   enable_point_cloud: true
   enable_depth: true
   enable_color: true
-  depth_registration: false
+  depth_registration: true
   enable_noise_removal_filter: true
 
 # 相机安装参数
 camera_mount:
-  height: 1.02       # 相机距地面高度(m)
+  height: 1.015       # 相机大螺丝距地面高度(m)
   tilt_angle: -0.785 # 相机朝向上倾斜45度(弧度)

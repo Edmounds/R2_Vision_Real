@@ -152,9 +152,9 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/conqu_localization_node.cpp)
 
 # 添加篮球框识别节点
-add_executable(hoop_detector src/hoop_detector.cpp)
-add_dependencies(hoop_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(hoop_detector
+add_executable(backboard_detector src/backboard_detector.cpp)
+add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(backboard_detector
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )

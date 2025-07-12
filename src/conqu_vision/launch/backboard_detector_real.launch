@@ -1,0 +1,93 @@
+<launch>
+  <!-- 加载参数文件 -->
+  <arg name="config_file" default="$(find conqu_vision)/config/conqu_vison.yaml"/>
+  <rosparam command="load" file="$(arg config_file)"/>
+  
+  <!-- 是否显示 RViz -->
+  <arg name="show_rviz" default="true"/>
+  
+  <!-- RViz 配置文件路径 -->
+  <arg name="rvizconfig" default="$(find conqu_vision)/rviz/real.rviz" />
+  
+  <!-- 启动 Orbbec Gemini 335 相机，直接设置相机参数 -->
+  <include file="$(find orbbec_camera)/launch/gemini_330_series.launch">
+    <arg name="camera_name" value="camera"/>
+    <arg name="enable_point_cloud" value="true"/>
+    <arg name="enable_depth" value="true"/>
+    <arg name="depth_width" value="640"/>
+    <arg name="depth_height" value="480"/>
+    <arg name="depth_fps" value="30"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="color_width" value="640"/>
+    <arg name="color_height" value="480"/>
+    <arg name="color_fps" value="30"/>
+    <arg name="depth_registration" value="true"/>
+    <arg name="depth_precision" value="1mm"/>
+    <arg name="enable_noise_removal_filter" value="true"/>
+    <arg name="enable_temporal_filter" value="true"/>
+    <arg name="enable_threshold_filter" value="true"/>
+    <arg name="threshold_filter_min" value="500"/>
+    <arg name="threshold_filter_max" value="8000"/>       
+    <arg name="ordered_pc" default="true"/>                
+    <arg name="publish_tf" value="false"/>
+    <arg name="enable_laser" default="true"/>
+    <arg name="color_exposure" value="156"/>
+    <arg name="color_gain" value="16"/>
+    <arg name="color_gamma" value="300"/>
+    <arg name="color_white_balance" value="4600"/>
+    <arg name="color_constrast" value="50"/>
+    <arg name="color_saturation" value="64"/>
+    <arg name="color_sharpness" value="50"/>
+    <arg name="laser_energy_level" value="6"/>
+  </include>
+  
+  <!-- 相机内参参数 -->
+  <group ns="camera">
+    <param name="fx" value="460.587" />
+    <param name="fy" value="460.748" />
+    <param name="cx" value="327.796" />
+    <param name="cy" value="243.640" />
+  </group>
+
+  <!-- 深度图像处理参数 -->
+  <group ns="depth_processing">
+    <param name="median_blur_ksize" value="5" />
+    <param name="depth_threshold" value="150.0" />
+    <param name="canny_threshold1" value="50.0" />
+    <param name="canny_threshold2" value="150.0" />
+    <param name="min_aspect_ratio" value="1.5" />
+    <param name="max_aspect_ratio" value="3.0" />
+    <param name="min_area" value="1000.0" />
+  </group>
+
+  <!-- 启动篮球框检测节点 -->
+  <node name="backboard_detector_cpp" pkg="conqu_vision" type="backboard_detector" output="screen">
+    <!-- 指定使用的点云话题 -->
+    <!-- <remap from="/camera/depth/points" to="/camera/depth_registered/points"/> -->
+  </node>
+
+  <!-- 相机安装参数 -->
+  <arg name="camera_mount_height" default="1.015"/> 
+  <arg name="camera_mount_tilt_angle" default="-0.785"/>
+
+  <!-- 加载相机的URDF模型 -->
+  <param name="robot_description" 
+         command="$(find xacro)/xacro '$(find orbbec_camera)/urdf/gemini335_336.urdf.xacro'" />
+
+  <!-- 启动robot_state_publisher，发布URDF中定义的TF变换 -->
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+  <!-- 从参数服务器读取摄像头安装参数 -->
+  <!-- 发布 base_link 到 camera_bottom_screw_frame 的变换，精确设定底部螺丝的高度 -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_base_link_broadcaster"
+        args="0 0 $(arg camera_mount_height) 0 $(arg camera_mount_tilt_angle) 0 base_link camera_bottom_screw_frame 100" />
+
+  <!-- 添加此行：发布从 camera_bottom_screw_frame 到 camera_link 的变换 -->
+  <node pkg="tf" type="static_transform_publisher" name="camera_link_broadcaster"
+        args="0 0 0 0 0 0 camera_bottom_screw_frame camera_link 100" />
+
+  <!-- 条件启动 RViz -->
+  <node if="$(arg show_rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>
