@@ -1,0 +1,40 @@
+<launch>
+  <!-- 相机基本参数设置 -->
+  <arg name="camera_name" default="camera"/>
+  <!-- 是否显示 RViz -->
+  <arg name="show_rviz" default="true"/>
+  
+  <!-- RViz 配置文件路径 -->
+  <arg name="rvizconfig" default="$(find conqu_vision)/rviz/real.rviz" />
+  
+  <!-- 启动 Orbbec Gemini 330 相机 -->
+  <include file="$(find orbbec_camera)/launch/gemini_330_series.launch">
+    <arg name="camera_name" value="$(arg camera_name)"/>
+    <arg name="enable_point_cloud" value="true"/>
+    <arg name="enable_depth" value="true"/>
+    <arg name="depth_width" value="640"/>
+    <arg name="depth_height" value="480"/>
+    <arg name="depth_fps" value="30"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="color_width" value="640"/>
+    <arg name="color_height" value="480"/>
+    <arg name="color_fps" value="30"/>
+    <!-- 启用点云注册，确保深度和彩色图像对齐 -->
+    <arg name="depth_registration" value="false"/>
+    <!-- 根据需要开启降噪滤波器 -->
+    <arg name="enable_noise_removal_filter" value="true"/>
+  </include>
+  
+  <!-- 启动篮球框检测节点 -->
+  <node name="hoop_detector_cpp" pkg="conqu_vision" type="hoop_detector" output="screen">
+    <!-- 指定使用的点云话题 -->
+    <!-- <remap from="/camera/depth/points" to="/camera/depth_registered/points"/> -->
+  </node>
+
+<!-- 摄像头距离地面102cm，摄像头朝向上倾斜45度 -->
+<node pkg="tf" type="static_transform_publisher" name="camera_link_broadcaster"
+      args="0 0 1.02 0 -0.785 0 base_link camera_link 100" />
+
+  <!-- 条件启动 RViz -->
+  <node if="$(arg show_rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>
