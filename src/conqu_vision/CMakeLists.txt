@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
   pcl_conversions
   pcl_ros
+  message_generation
 )
 
 find_package(OpenCV REQUIRED)
@@ -33,6 +34,15 @@ add_definitions(${PCL_DEFINITIONS})
 # 添加OpenVINO依赖
 find_package(OpenVINO REQUIRED COMPONENTS Runtime)
 include_directories(${OpenVINO_INCLUDE_DIRS})
+
+
+find_package(PkgConfig)
+pkg_check_modules(SERIAL libserial)
+include_directories(${SERIAL_INCLUDE_DIRS})
+link_directories(${SERIAL_LIBRARY_DIRS})
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(MICROHTTPD REQUIRED libmicrohttpd)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -68,11 +78,10 @@ include_directories(${OpenVINO_INCLUDE_DIRS})
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  ByteArray.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -89,10 +98,12 @@ include_directories(${OpenVINO_INCLUDE_DIRS})
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+  sensor_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -126,8 +137,8 @@ include_directories(${OpenVINO_INCLUDE_DIRS})
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES conqu_lightstrip_sim
-  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros
-  DEPENDS PCL
+  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros message_runtime
+  DEPENDS PCL SERIAL
 )
 
 ###########
@@ -162,7 +173,7 @@ add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 target_link_libraries(backboard_detector
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
-  ${OpenVINO_LIBRARIES}
+  openvino::runtime
 )
 
 add_executable(backboard_detector_points src/backboard_detector_points.cpp)
@@ -171,6 +182,29 @@ target_link_libraries(backboard_detector_points
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
 )
+
+add_executable(serial_send src/serial_sender.cpp)
+target_link_libraries(serial_send
+  ${catkin_LIBRARIES}
+  ${serial_LIBRARIES}
+)
+add_dependencies(serial_send ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_executable(data_pro src/data_process.cpp)
+target_link_libraries(data_pro
+  ${catkin_LIBRARIES}
+  ${serial_LIBRARIES}
+)
+
+
+# 相机画面传输节点
+add_executable(camera_deliver src/camera_deliver.cpp)
+target_link_libraries(camera_deliver
+  ${catkin_LIBRARIES}
+  ${serial_LIBRARIES}
+  ${MICROHTTPD_LIBRARIES}
+)
+add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

@@ -1,0 +1,6 @@
+<launch>
+    <!-- 启动 camera_node 节点 -->
+    <node pkg="conqu_vision" type="camera_deliver" name="camera_deliver" output="screen" />
+
+
+</launch>

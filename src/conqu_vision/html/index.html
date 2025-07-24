@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>摄像头画面</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <img id="camera-feed" src="http://192.168.8.178:8080" alt="摄像头画面">
+    <script>
+        const img = document.getElementById('camera-feed');
+        setInterval(() => {
+            img.src = `http://192.168.8.178:8080?timestamp=${new Date().getTime()}`;
+        }, 100); // 每 100 毫秒刷新一次
+    </script>
+</body>
+</html>
