@@ -1,19 +1,19 @@
 Panels:
   - Class: rviz/Displays
-    Help Height: 70
+    Help Height: 137
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
         - /Status1
-        - /PointCloud21
         - /Grid1
         - /Image1
         - /TF1/Tree1
         - /Image2
         - /Image3
+        - /PointCloud21
       Splitter Ratio: 0.48514851927757263
-    Tree Height: 795
+    Tree Height: 728
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -21,34 +21,6 @@ Toolbars:
 Visualization Manager:
   Class: ""
   Displays:
-    - Alpha: 1
-      Autocompute Intensity Bounds: true
-      Autocompute Value Bounds:
-        Max Value: 2.334836959838867
-        Min Value: 2.235032796859741
-        Value: true
-      Axis: Z
-      Channel Name: intensity
-      Class: rviz/PointCloud2
-      Color: 255; 255; 255
-      Color Transformer: AxisColor
-      Decay Time: 0
-      Enabled: true
-      Invert Rainbow: false
-      Max Color: 255; 255; 255
-      Min Color: 0; 0; 0
-      Name: PointCloud2
-      Position Transformer: XYZ
-      Queue Size: 10
-      Selectable: true
-      Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
-      Topic: /basket_detection/filtered_cloud
-      Unreliable: false
-      Use Fixed Frame: true
-      Use rainbow: true
-      Value: true
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz/Grid
@@ -68,8 +40,8 @@ Visualization Manager:
       Reference Frame: base_link
       Value: true
     - Class: rviz/Image
-      Enabled: true
-      Image Topic: /basket_detection/filtered_depth
+      Enabled: false
+      Image Topic: /detection/result
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -78,7 +50,7 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/TF
       Enabled: true
       Filter (blacklist): ""
@@ -139,7 +111,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /basket_detection/processed_depth
+      Image Topic: /camera/color/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -150,8 +122,8 @@ Visualization Manager:
       Unreliable: false
       Value: true
     - Class: rviz/Image
-      Enabled: false
-      Image Topic: ""
+      Enabled: true
+      Image Topic: /detection/result
       Max Value: 1
       Median window: 5
       Min Value: 0
@@ -160,7 +132,35 @@ Visualization Manager:
       Queue Size: 2
       Transport Hint: raw
       Unreliable: false
-      Value: false
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /camera/depth/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -174,7 +174,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 14.64848804473877
+      Distance: 4.556811809539795
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -190,9 +190,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5147974491119385
+      Pitch: -0.3002026081085205
       Target Frame: <Fixed Frame>
-      Yaw: 1.7903906106948853
+      Yaw: 2.825389862060547
     Saved: ~
 Window Geometry:
   Displays:
@@ -202,7 +202,7 @@ Window Geometry:
   Hide Right Dock: false
   Image:
     collapsed: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001fb0000039efc0200000004fb000000100044006900730070006c006100790073010000003d0000039e000000c900fffffffb0000000a0049006d00610067006503000002ca000000cb000001d30000018afb0000000a0049006d00610067006503000002f80000026a0000024a00000153fb0000000a0049006d00610067006500000002b4000001270000001600ffffff000005370000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001fb0000039efc0200000004fb000000100044006900730070006c006100790073010000003d0000039e000000c900fffffffb0000000a0049006d00610067006502000004c60000025800000280000001e0fb0000000a0049006d00610067006503000004830000018000000280000001e0fb0000000a0049006d006100670065030000026a00000234000001fb00000147000005370000039e00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Width: 1848
   X: 72
   Y: 27

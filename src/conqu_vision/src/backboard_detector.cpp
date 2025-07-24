@@ -1,406 +1,474 @@
 #include <ros/ros.h>
-#include <std_msgs/Float64.h>
-#include <visualization_msgs/Marker.h> 
-#include <tf2_ros/transform_listener.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.h>
-#include <cmath>
-// 添加必要的头文件
-#include <opencv2/opencv.hpp>
+#include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/Image.h>
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <sensor_msgs/image_encodings.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <openvino/openvino.hpp>
+#include <vector>
+#include <algorithm>
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <tf/transform_listener.h>
 
-class BasketDetector
-{
-public:
-  BasketDetector() : tf_buffer_(ros::Duration(10)), tf_listener_(tf_buffer_)
-  {
-    ros::NodeHandle nh;
-    ros::NodeHandle nh_private("~");
-    
-    // 从参数服务器读取篮板参数
-    nh_private.param<float>("/backboard_detection/basket_height", basket_height_, 2.285);
-    nh_private.param<float>("/backboard_detection/basket_length", basket_length_, 1.8);
-    nh_private.param<float>("/backboard_detection/basket_width", basket_width_, 0.05);
-    nh_private.param<float>("/backboard_detection/height_tolerance", height_tolerance_, 0.1);
-    nh_private.param<float>("/backboard_detection/size_tolerance", size_tolerance_, 0.2);
-    
-    // 相机内参参数
-    nh_private.param<double>("/camera/fx", fx_, 460.587);
-    nh_private.param<double>("/camera/fy", fy_, 460.748);
-    nh_private.param<double>("/camera/cx", cx_, 327.796);
-    nh_private.param<double>("/camera/cy", cy_, 243.640);
-    
-    // 添加深度图像处理相关参数
-    nh_private.param<int>("/depth_processing/median_blur_ksize", median_blur_ksize_, 5);
-    nh_private.param<double>("/depth_processing/depth_threshold", depth_threshold_, 150.0);
-    nh_private.param<double>("/depth_processing/canny_threshold1", canny_threshold1_, 50.0);
-    nh_private.param<double>("/depth_processing/canny_threshold2", canny_threshold2_, 150.0);
-    nh_private.param<double>("/depth_processing/min_aspect_ratio", min_aspect_ratio_, 1.5);
-    nh_private.param<double>("/depth_processing/max_aspect_ratio", max_aspect_ratio_, 3.0);
-    nh_private.param<double>("/depth_processing/min_area", min_area_, 1000.0);
-    
-    // 打印读取的参数值，用于调试
-    ROS_INFO("Loaded parameters:");
-    ROS_INFO("  basket_height: %.3f", basket_height_);
-    ROS_INFO("  basket_length: %.3f", basket_length_);
-    ROS_INFO("  basket_width: %.3f", basket_width_);
-    ROS_INFO("  height_tolerance: %.3f", height_tolerance_);
-    ROS_INFO("  size_tolerance: %.3f", size_tolerance_);
- 
-    // 正确订阅深度图像
-    depth_sub_ = nh.subscribe("/camera/depth/image_raw", 1, &BasketDetector::depthImageCallback, this);
-    
-    // 发布各处理阶段的图像用于调试
-    raw_depth_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/raw_depth", 1);
-    filtered_depth_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/filtered_depth", 1);
-    thresholded_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/thresholded", 1);
-    edges_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/edges", 1);
-    contour_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/contour", 1);
-    
-    // 发布处理后的图像和检测结果
-    processed_depth_pub_ = nh.advertise<sensor_msgs::Image>("/basket_detection/processed_depth", 1);
-    backboard_pose_pub_ = nh.advertise<geometry_msgs::PoseStamped>("/basket_detection/backboard_pose", 1);
-    marker_pub_ = nh.advertise<visualization_msgs::Marker>("/basket_detection/backboard_marker", 1);
-  }
+// OpenVINO相关
+ov::Core core;
+ov::CompiledModel compiled_model;
+ov::InferRequest infer_request;
 
-  // 深度图像处理回调函数
-  void depthImageCallback(const sensor_msgs::ImageConstPtr& depth_msg)
-  {
-    try
-    {
-      // 将ROS图像消息转换为OpenCV格式
-      cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(depth_msg, sensor_msgs::image_encodings::TYPE_32FC1);
-      cv::Mat depth_image = cv_ptr->image;
-      
-      // 发布原始深度图像用于调试
-      cv_bridge::CvImage raw_depth_msg;
-      raw_depth_msg.header = depth_msg->header;
-      raw_depth_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-      raw_depth_msg.image = depth_image;
-      raw_depth_pub_.publish(raw_depth_msg.toImageMsg());
-      
-      // 1. 深度图去噪处理
-      cv::Mat filtered_depth;
-      
-      // // 使用中值滤波去除噪声
-      // cv::medianBlur(depth_image, filtered_depth, median_blur_ksize_);
-      // ROS_DEBUG("Applied median blur with kernel size %d", median_blur_ksize_);
-      
-      // 另一种选择: 双边滤波（保留边缘的同时平滑区域）
-      cv::Mat bilateral_filtered;
-      cv::bilateralFilter(depth_image, bilateral_filtered, 9, 75, 75);
-      filtered_depth = bilateral_filtered;
-      
-      // 发布滤波后的深度图像
-      cv_bridge::CvImage filtered_msg;
-      filtered_msg.header = depth_msg->header;
-      filtered_msg.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
-      filtered_msg.image = filtered_depth;
-      filtered_depth_pub_.publish(filtered_msg.toImageMsg());
-      
-      // 2. 篮板区域分割
-      cv::Mat thresholded;
-      cv::threshold(filtered_depth, thresholded, depth_threshold_, 255, cv::THRESH_BINARY);
-      ROS_DEBUG("Applied threshold with value %.1f", depth_threshold_);
-      
-      // 发布二值化图像
-      cv::Mat thresh_vis;
-      thresholded.convertTo(thresh_vis, CV_8UC1);
-      cv_bridge::CvImage thresh_msg;
-      thresh_msg.header = depth_msg->header;
-      thresh_msg.encoding = sensor_msgs::image_encodings::MONO8;
-      thresh_msg.image = thresh_vis;
-      thresholded_pub_.publish(thresh_msg.toImageMsg());
-      
-      // 转换为8位图像用于边缘检测
-      cv::Mat depth_8bit;
-      thresholded.convertTo(depth_8bit, CV_8U);
-      
-      // 应用Canny边缘检测
-      cv::Mat edges;
-      cv::Canny(depth_8bit, edges, canny_threshold1_, canny_threshold2_);
-      ROS_DEBUG("Applied Canny edge detection with thresholds %.1f, %.1f", 
-                canny_threshold1_, canny_threshold2_);
-                
-      // 发布边缘检测图像
-      cv_bridge::CvImage edges_msg;
-      edges_msg.header = depth_msg->header;
-      edges_msg.encoding = sensor_msgs::image_encodings::MONO8;
-      edges_msg.image = edges;
-      edges_pub_.publish(edges_msg.toImageMsg());
-      
-      // 3. 轮廓提取与筛选
-      std::vector<std::vector<cv::Point>> contours;
-      std::vector<cv::Vec4i> hierarchy;
-      cv::findContours(edges, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
-      
-      // 筛选出符合篮板特征的轮廓
-      std::vector<cv::Point> selected_contour;
-      cv::Rect selected_rect;
-      bool found_backboard = false;
-      
-      // 创建轮廓可视化图像
-      cv::Mat contour_img = cv::Mat::zeros(edges.size(), CV_8UC3);
-      // 绘制所有轮廓
-      for (size_t i = 0; i < contours.size(); i++) {
-        cv::Scalar color = cv::Scalar(0, 0, 255); // 红色：未选择的轮廓
-        cv::drawContours(contour_img, contours, i, color, 2);
-      }
-      
-      for (const auto& contour : contours)
-      {
-        cv::Rect rect = cv::boundingRect(contour);
-        double aspect_ratio = rect.width / static_cast<double>(rect.height);
-        double area = rect.width * rect.height;
+std::string model_path;
+int input_width;
+int input_height;
+
+image_transport::Publisher image_pub, yolo_pub;
+
+// 初始化OpenVINO
+void initOpenVINO() {
+    try {
+        ROS_INFO("Loading OpenVINO model: %s", model_path.c_str());
         
-        if (min_aspect_ratio_ < aspect_ratio && aspect_ratio < max_aspect_ratio_ && area > min_area_)
-        {
-          selected_contour = contour;
-          selected_rect = rect;
-          found_backboard = true;
-          
-          // 在轮廓图像上绘制选择的轮廓（用绿色标记）
-          cv::drawContours(contour_img, std::vector<std::vector<cv::Point>>{contour}, 0, cv::Scalar(0, 255, 0), 3);
-          cv::rectangle(contour_img, selected_rect, cv::Scalar(0, 255, 0), 2);
-          
-          // 如果需要进一步筛选，可以添加更多条件
-          break;  // 选取第一个符合条件的轮廓
-        }
-      }
-      
-      // 发布轮廓图像
-      cv_bridge::CvImage contour_msg;
-      contour_msg.header = depth_msg->header;
-      contour_msg.encoding = sensor_msgs::image_encodings::BGR8;
-      contour_msg.image = contour_img;
-      contour_pub_.publish(contour_msg.toImageMsg());
-      
-      // 4. 坐标转换 - 如果找到了篮板
-      std::vector<cv::Point> corner_points; // 将变量定义移到这里，使其对整个函数可见
-      
-      if (found_backboard)
-      {
-        ROS_INFO("Found potential backboard: width=%d, height=%d, aspect_ratio=%.2f", 
-                 selected_rect.width, selected_rect.height, 
-                 selected_rect.width / static_cast<double>(selected_rect.height));
+        // 读取模型
+        auto model = core.read_model(model_path);
         
-        // 提取篮板四个角点
-        std::vector<cv::Point3d> backboard_corners_3d;
+        // 检查输入输出形状
+        auto input_port = model->input();
+        auto output_port = model->output();
         
-     
-        corner_points = { // 修改为赋值而非声明
-          cv::Point(selected_rect.x, selected_rect.y),                           // 左上
-          cv::Point(selected_rect.x + selected_rect.width, selected_rect.y),     // 右上
-          cv::Point(selected_rect.x, selected_rect.y + selected_rect.height),    // 左下
-          cv::Point(selected_rect.x + selected_rect.width, selected_rect.y + selected_rect.height) // 右下
-        };
+        ROS_INFO("Model input shape: [%ld, %ld, %ld, %ld]", 
+            input_port.get_shape()[0], input_port.get_shape()[1],
+            input_port.get_shape()[2], input_port.get_shape()[3]);
         
-        for (const auto& point : corner_points)
-        {
-          int u = point.x;
-          int v = point.y;
-          
-          // 确保坐标在图像范围内
-          if (u >= 0 && u < filtered_depth.cols && v >= 0 && v < filtered_depth.rows)
-          {
-            try {
-              // 获取该点的深度值
-              float z = filtered_depth.at<float>(v, u);
-              
-              // 深度值有效时进行转换
-              if (std::isfinite(z) && z > 0)
-              {
-                // 像素坐标转换为3D世界坐标
-                double x = (u - cx_) * z / fx_;
-                double y = (v - cy_) * z / fy_;
-                
-                backboard_corners_3d.emplace_back(x, y, z);
-                ROS_INFO("Corner 3D coordinate: (%.2f, %.2f, %.2f) m", x, y, z);
-              }
-              else {
-                ROS_DEBUG("Invalid depth value at point (%d, %d): %.2f", u, v, z);
-              }
-            } catch (const std::exception& e) {
-              ROS_ERROR("Exception while processing depth at (%d, %d): %s", u, v, e.what());
-            }
-          }
-          else {
-            ROS_DEBUG("Point (%d, %d) out of bounds (image: %dx%d)", 
-                      u, v, filtered_depth.cols, filtered_depth.rows);
-          }
+        // 设置GPU设备
+        ov::AnyMap config;
+        config["PERFORMANCE_HINT"] = "THROUGHPUT";
+        config["GPU_ENABLE_LOOP_UNROLLING"] = "YES";
+        
+        // 编译模型 - 使用Intel GPU
+        try {
+            compiled_model = core.compile_model(model, "GPU", config);
+            ROS_INFO("Using Intel GPU for inference");
+        } catch (const std::exception& e) {
+            ROS_WARN("Failed to use GPU, falling back to CPU: %s", e.what());
+            compiled_model = core.compile_model(model, "CPU");
         }
         
-        // 如果成功提取到足够的角点，计算篮板中心位置
-        if (backboard_corners_3d.size() >= 3)
-        {
-          // 计算篮板中心点
-          cv::Point3d center(0, 0, 0);
-          for (const auto& point : backboard_corners_3d)
-          {
-            center.x += point.x;
-            center.y += point.y;
-            center.z += point.z;
-          }
-          center.x /= backboard_corners_3d.size();
-          center.y /= backboard_corners_3d.size();
-          center.z /= backboard_corners_3d.size();
-          
-          // 发布篮板位置
-          publishBackboardPose(center, depth_msg->header.frame_id);
-          
-          // 发布可视化标记
-          publishBackboardMarker(center, backboard_corners_3d, depth_msg->header.frame_id);
-        }
-      }
-      else
-      {
-        ROS_INFO_THROTTLE(1.0, "No suitable backboard contour found");
-      }
-      
-      // 发布最终处理后的图像（用于调试）
-      // 创建一个彩色图像展示最终结果
-      cv::Mat final_result;
-      if (found_backboard) {
-        cv::cvtColor(edges, final_result, cv::COLOR_GRAY2BGR);
-        // 在最终结果上绘制检测到的篮板位置
-        cv::rectangle(final_result, selected_rect, cv::Scalar(0, 255, 0), 2);
+        // 创建推理请求
+        infer_request = compiled_model.create_infer_request();
         
-        // 绘制四个角点
-        for (const auto& point : corner_points) {
-          cv::circle(final_result, point, 5, cv::Scalar(0, 0, 255), -1);
-        }
-      } else {
-        cv::cvtColor(edges, final_result, cv::COLOR_GRAY2BGR);
-      }
-      
-      cv_bridge::CvImage processed_msg;
-      processed_msg.header = depth_msg->header;
-      processed_msg.encoding = sensor_msgs::image_encodings::BGR8;
-      processed_msg.image = final_result;
-      processed_depth_pub_.publish(processed_msg.toImageMsg());
-      
+    } catch (const std::exception& e) {
+        ROS_ERROR("Failed to initialize OpenVINO: %s", e.what());
+        ros::shutdown();
     }
-    catch (cv_bridge::Exception& e)
-    {
-      ROS_ERROR("cv_bridge exception: %s", e.what());
-    }
-  }
-
-private:
-  // 发布篮板位置
-  void publishBackboardPose(const cv::Point3d& center, const std::string& frame_id)
-  {
-    geometry_msgs::PoseStamped pose;
-    pose.header.stamp = ros::Time::now();
-    pose.header.frame_id = frame_id;
-    
-    pose.pose.position.x = center.x;
-    pose.pose.position.y = center.y;
-    pose.pose.position.z = center.z;
-    
-    // 默认方向（假设篮板面向相机）
-    pose.pose.orientation.w = 1.0;
-    
-    backboard_pose_pub_.publish(pose);
-  }
-  
-  // 发布可视化标记
-  void publishBackboardMarker(const cv::Point3d& center, 
-                             const std::vector<cv::Point3d>& corners,
-                             const std::string& frame_id)
-  {
-    visualization_msgs::Marker marker;
-    marker.header.frame_id = frame_id;
-    marker.header.stamp = ros::Time::now();
-    marker.ns = "backboard";
-    marker.id = 0;
-    marker.type = visualization_msgs::Marker::CUBE;
-    marker.action = visualization_msgs::Marker::ADD;
-    
-    // 设置位置
-    marker.pose.position.x = center.x;
-    marker.pose.position.y = center.y;
-    marker.pose.position.z = center.z;
-    
-    // 默认方向
-    marker.pose.orientation.w = 1.0;
-    
-    // 估计尺寸
-    if (corners.size() >= 4)
-    {
-      // 简单估计宽度和高度
-      double width = cv::norm(corners[0] - corners[1]);
-      double height = cv::norm(corners[0] - corners[2]);
-      
-      marker.scale.x = 0.05;  // 厚度
-      marker.scale.y = width;
-      marker.scale.z = height;
-    }
-    else
-    {
-      // 默认尺寸
-      marker.scale.x = basket_width_;
-      marker.scale.y = basket_length_;
-      marker.scale.z = 1.0;  // 默认高度
-    }
-    
-    // 设置颜色
-    marker.color.r = 1.0;
-    marker.color.g = 1.0;
-    marker.color.b = 1.0;
-    marker.color.a = 0.8;
-    
-    marker.lifetime = ros::Duration(0.5);  // 0.5秒
-    
-    marker_pub_.publish(marker);
-  }
-
-  // ROS相关
-  ros::NodeHandle nh_;
-  tf2_ros::Buffer tf_buffer_;
-  tf2_ros::TransformListener tf_listener_;
-  ros::Subscriber depth_sub_;
-  
-  // 用于调试的图像发布器
-  ros::Publisher raw_depth_pub_;
-  ros::Publisher filtered_depth_pub_;
-  ros::Publisher thresholded_pub_;
-  ros::Publisher edges_pub_;
-  ros::Publisher contour_pub_;
-  ros::Publisher processed_depth_pub_;
-  
-  // 篮板位姿和标记发布器
-  ros::Publisher backboard_pose_pub_;
-  ros::Publisher marker_pub_;
-  
-  // 篮板参数
-  float basket_height_;
-  float basket_length_;
-  float basket_width_;
-  float height_tolerance_;
-  float size_tolerance_;
-  
-  // 相机内参
-  double fx_, fy_, cx_, cy_;
-  
-  // 图像处理参数
-  int median_blur_ksize_;
-  double depth_threshold_;
-  double canny_threshold1_;
-  double canny_threshold2_;
-  double min_aspect_ratio_;
-  double max_aspect_ratio_;
-  double min_area_;
-};
-
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, "backboard_detector");
-  BasketDetector detector;
-  ros::spin();
-  return 0;
 }
 
+// 检测图像
+cv::Rect detectImg(cv::Mat img_input){
+    /* ==================== 预处理图像 START ==================== */
+
+    cv::Mat rgb_image, resized_image;
+    
+    // BGR转RGB
+    cv::cvtColor(img_input, rgb_image, cv::COLOR_BGR2RGB);
+    
+    // 缩放到模型输入尺寸
+    cv::resize(rgb_image, resized_image, cv::Size(input_width, input_height));
+    
+    // 转换数据类型并归一化
+    cv::Mat preprocessed;
+    resized_image.convertTo(preprocessed, CV_32F, 1.0/255.0);
+
+    /* ==================== 预处理图像 END ==================== */
+
+
+    /* ==================== YOLO识别 START ==================== */
+
+    // 创建输入张量
+    ov::Tensor input_tensor = ov::Tensor(ov::element::f32, {1, 3, static_cast<size_t>(input_height), static_cast<size_t>(input_width)});
+    float* input_data = input_tensor.data<float>();
+    
+    // 复制数据到张量 (HWC -> CHW)
+    for (int c = 0; c < 3; ++c) {
+        for (int h = 0; h < input_height; ++h) {
+            for (int w = 0; w < input_width; ++w) {
+                input_data[c * input_height * input_width + h * input_width + w] = 
+                    preprocessed.at<cv::Vec3f>(h, w)[c];
+            }
+        }
+    }
+    
+    // 设置输入张量
+    infer_request.set_input_tensor(input_tensor);
+    // 运行推理
+    infer_request.infer();
+    // 获取输出
+    auto output_tensor = infer_request.get_output_tensor();
+
+    /* ==================== YOLO识别 END ==================== */
+
+
+    /* ==================== 后处理识别结果 START ==================== */
+
+    const float* data = output_tensor.data<float>();
+    auto shape = output_tensor.get_shape();
+    size_t num_classes_plus_4 = shape[1];
+    size_t num_anchors = shape[2];
+    size_t num_classes = num_classes_plus_4 - 4;
+
+    float scale_x = static_cast<float>(img_input.cols) / input_width;
+    float scale_y = static_cast<float>(img_input.rows) / input_height;
+
+    float best_conf = -1.0f;
+    int best_class_id = -1;
+    cv::Rect best_bbox;
+
+    for (size_t i = 0; i < num_anchors; ++i) {
+        float x_center = data[i];
+        float y_center = data[num_anchors + i];
+        float width = data[2 * num_anchors + i];
+        float height = data[3 * num_anchors + i];
+
+        float max_confidence = 0.0f;
+        int max_class_id = -1;
+        for (size_t c = 0; c < num_classes; ++c) {
+            float confidence = data[(4 + c) * num_anchors + i];
+            if (confidence > max_confidence) {
+                max_confidence = confidence;
+                max_class_id = c;
+            }
+        }
+
+        if (max_confidence > best_conf && max_confidence > 0.5f) {
+            float x1 = (x_center - width / 2) * scale_x;
+            float y1 = (y_center - height / 2) * scale_y;
+            float x2 = (x_center + width / 2) * scale_x;
+            float y2 = (y_center + height / 2) * scale_y;
+
+            x1 = std::max(0.0f, std::min(x1, img_input.cols - 1.0f));
+            y1 = std::max(0.0f, std::min(y1, img_input.rows - 1.0f));
+            x2 = std::max(0.0f, std::min(x2, img_input.cols - 1.0f));
+            y2 = std::max(0.0f, std::min(y2, img_input.rows - 1.0f));
+
+            best_bbox = cv::Rect(cv::Point(x1, y1), cv::Point(x2, y2));
+            best_conf = max_confidence;
+            best_class_id = max_class_id;
+        }
+    }
+
+    /* ==================== 后处理识别结果 END ==================== */
+
+    return best_bbox;
+}
+
+cv::Vec4i mergeLines(const std::vector<cv::Vec4i>& lines) {
+    if (lines.empty()) return cv::Vec4i();
+
+    int x1 = lines[0][0], y1 = lines[0][1], x2 = lines[0][2], y2 = lines[0][3];
+    for (const auto& line : lines) {
+        
+    }
+    return cv::Vec4i(x1, y1, x2, y2);
+}
+
+struct Line {
+    double k;
+    double b;
+    cv::Point2i left;
+    cv::Point2i right;
+};
+
+// CoreCallBack 回调函数
+void ccb(
+    const sensor_msgs::ImageConstPtr& rgb_msg, 
+    const sensor_msgs::ImageConstPtr& depth_msg, 
+    const sensor_msgs::PointCloud2ConstPtr& pcl_msg
+){
+    // ROS_INFO("Received RGB and Depth images, processing...");
+
+    cv_bridge::CvImagePtr cv_rgb_ptr, cv_depth_ptr;
+    cv_rgb_ptr = cv_bridge::toCvCopy(rgb_msg, sensor_msgs::image_encodings::BGR8);
+    cv_depth_ptr = cv_bridge::toCvCopy(depth_msg, sensor_msgs::image_encodings::TYPE_16UC1);
+    cv::Mat rgb_image = cv_rgb_ptr->image;
+    cv::Mat depth_image = cv_depth_ptr->image;
+
+    // 点云数据转换为PCL格式
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>());
+    pcl::fromROSMsg(*pcl_msg, *cloud);
+
+    // 调整depth图尺寸与rgb一致
+    cv::Mat depth_resized;
+    cv::resize(depth_image, depth_resized, rgb_image.size());
+
+    cv::Mat fused_image = rgb_image.clone();
+    for (int y = 0; y < fused_image.rows; ++y) {
+        for (int x = 0; x < fused_image.cols; ++x) {
+            uint16_t depth_val = depth_resized.at<uint16_t>(y, x);
+            cv::Vec3b& pixel = fused_image.at<cv::Vec3b>(y, x);
+
+            // 把距离过远的像素直接设为黑色
+            if (depth_val == 0) {
+                pixel = 0;
+                continue;
+            }
+
+            // double scale = pow(static_cast<double>(8000 - depth_val) / 8000.0, 4.0);
+            double scale = 1.0 - static_cast<double>(depth_val) / 8000.0;
+            for (int c = 0; c < 3; ++c) {
+                pixel[c] = std::min(static_cast<uchar>(pixel[c] * scale), static_cast<uchar>(255));
+            }
+        }
+    }
+
+    // 检测图像
+    cv::Rect detected_bbox = detectImg(rgb_image);
+    if (detected_bbox.width == 0 || detected_bbox.height == 0) {
+        return;
+    }
+
+    /* 在输入图上框出识别范围 */
+    cv::rectangle(rgb_image, detected_bbox, cv::Scalar(0, 255, 0), 2);
+
+    cv_bridge::CvImage out_msg_yolo;
+    out_msg_yolo.header = rgb_msg->header;
+    out_msg_yolo.encoding = sensor_msgs::image_encodings::BGR8;
+    out_msg_yolo.image = rgb_image;
+    yolo_pub.publish(out_msg_yolo.toImageMsg());
+    
+    // 计算新的宽高（扩大到105%）
+    int new_width = static_cast<int>(detected_bbox.width * 1.05);
+    int new_height = static_cast<int>(detected_bbox.height * 1.05);
+
+    // 保持中心点不变
+    int center_x = detected_bbox.x + detected_bbox.width / 2;
+    int center_y = detected_bbox.y + detected_bbox.height / 2;
+    int new_x = center_x - new_width / 2;
+    int new_y = center_y - new_height / 2;
+
+    // 限制边界
+    new_x = std::max(0, new_x);
+    new_y = std::max(0, new_y);
+    if (new_x + new_width > rgb_image.cols) new_width = rgb_image.cols - new_x;
+    if (new_y + new_height > rgb_image.rows) new_height = rgb_image.rows - new_y;
+
+    cv::Rect enlarged_bbox(new_x, new_y, new_width, new_height);
+
+    // 裁剪检测到的区域
+    cv::Mat cropped_image = fused_image(enlarged_bbox).clone();
+
+    cv::Mat canny_image;
+    cv::Canny(cropped_image, canny_image, 100, 200);
+
+    std::vector<cv::Vec4i> lines;
+    int hough_threshold = 50;
+    int min_line_length = static_cast<int>(canny_image.cols * 0.4);
+    int max_line_gap = static_cast<int>(canny_image.cols * 0.3);
+    cv::HoughLinesP(canny_image, lines, 1, CV_PI / 90, hough_threshold, min_line_length, max_line_gap);
+
+    // 合并线段
+    std::vector<Line> lines_params;
+    for (const auto& line : lines) {
+        cv::Point2i left, right;
+        if (line[1] < line[3]) {
+            left = cv::Point2i(line[0], line[1]);
+            right = cv::Point2i(line[2], line[3]);
+        } else {
+            left = cv::Point2i(line[2], line[3]);
+            right = cv::Point2i(line[0], line[1]);
+        }
+
+        if (std::min(left.y, right.y) < cropped_image.rows * 0.5) continue; // 忽略过低的线段
+        // cv::line(cropped_image, left, right, cv::Scalar(255, 0, 0), 1);
+
+        // 计算斜率和截距
+        double k = static_cast<double>(right.y - left.y) / (right.x - left.x);
+        double b = left.y - k * left.x;
+        // ROS_INFO("Line: k = %.2f, b = %.2f, left = (%d, %d), right = (%d, %d)", 
+        //     k, b, left.x, left.y, right.x, right.y);
+
+        // 合并邻近的直线
+        bool merged = false;
+        for (Line& line_prev : lines_params) {
+            if (abs(line_prev.k - k) < 0.05 and abs(line_prev.b - b) < cropped_image.rows * 0.05) {
+                if (left.x < line_prev.left.x) line_prev.left = left;
+                if (right.x > line_prev.right.x) line_prev.right = right;
+
+                merged = true;
+                break;
+            }
+        }
+
+        if (!merged){
+            lines_params.push_back(Line({k, b, cv::Point(line[0], line[1]), cv::Point(line[2], line[3])}));
+        }
+    }
+
+    // 找出分数最高的线段
+    int max_score = std::numeric_limits<int>::min();
+    double dist_k = 2.0;
+    Line max_line;
+
+    for (const Line line_filtered : lines_params){
+        if (
+            line_filtered.left.x > cropped_image.cols * 0.3
+            or line_filtered.right.x < cropped_image.cols * 0.7
+            or std::max(line_filtered.left.y, line_filtered.right.y) < cropped_image.rows * 0.9
+        ) continue;
+
+        // 分数计算: 长度 - 中心点与图像下-中边缘点的距离 * 距离权重
+        if (cv::norm(line_filtered.left - line_filtered.right) - cv::norm(
+            (line_filtered.left + line_filtered.right) / 2 -
+            cv::Point(cropped_image.cols / 2, cropped_image.rows)
+        ) * dist_k > max_score) {
+            max_score = cv::norm(line_filtered.left - line_filtered.right);
+            max_line = line_filtered;
+        }
+    }
+
+    if (max_score == std::numeric_limits<int>::min()) {
+        return;
+    }
+
+    // ROS_INFO("Max line score: %d", max_score);
+    // ROS_INFO("Max line left: (%d, %d), right: (%d, %d)", 
+    //     max_line.left.x, max_line.left.y, max_line.right.x, max_line.right.y);
+    cv::line(cropped_image, max_line.left, max_line.right, cv::Scalar(0, 255, 0), 2);
+
+    // 计算max_line.left和max_line.right在原始图像中的坐标
+    int left_img_x = enlarged_bbox.x + max_line.left.x;
+    int left_img_y = enlarged_bbox.y + max_line.left.y;
+    int right_img_x = enlarged_bbox.x + max_line.right.x;
+    int right_img_y = enlarged_bbox.y + max_line.right.y;
+
+    // 在max_line.left和max_line.right周围半径5个点内寻找深度最小的点
+    int search_radius = 5;
+
+    // 检查坐标有效性
+    if (!(
+        left_img_x >= search_radius && left_img_x < (cloud->width - search_radius) &&
+        left_img_y >= search_radius && left_img_y < (cloud->height - search_radius) &&
+        right_img_x >= search_radius && right_img_x < (cloud->width - search_radius) &&
+        right_img_y >= search_radius && right_img_y < (cloud->height - search_radius)
+    )) return;
+
+    // 在左侧点周围搜索深度最小的点
+    float min_depth_left = std::numeric_limits<float>::max();
+    int best_left_x = left_img_x, best_left_y = left_img_y;
+    
+    for (int dy = -search_radius; dy <= search_radius; ++dy) {
+        for (int dx = -search_radius; dx <= search_radius; ++dx) {
+            if (dx*dx + dy*dy <= search_radius*search_radius) { // 圆形搜索范围
+                int search_x = left_img_x + dx;
+                int search_y = left_img_y + dy;
+                int search_index = search_y * cloud->width + search_x;
+                
+                pcl::PointXYZ search_pt = cloud->points[search_index];
+                
+                // 检查点是否有效且深度更小
+                if (!std::isnan(search_pt.z) && search_pt.z > 0 && search_pt.z < min_depth_left) {
+                    min_depth_left = search_pt.z;
+                    best_left_x = search_x;
+                    best_left_y = search_y;
+                }
+            }
+        }
+    }
+    
+    // 在右侧点周围搜索深度最小的点
+    float min_depth_right = std::numeric_limits<float>::max();
+    int best_right_x = right_img_x, best_right_y = right_img_y;
+    
+    for (int dy = -search_radius; dy <= search_radius; ++dy) {
+        for (int dx = -search_radius; dx <= search_radius; ++dx) {
+            if (dx*dx + dy*dy <= search_radius*search_radius) { // 圆形搜索范围
+                int search_x = right_img_x + dx;
+                int search_y = right_img_y + dy;
+                int search_index = search_y * cloud->width + search_x;
+                
+                pcl::PointXYZ search_pt = cloud->points[search_index];
+                
+                // 检查点是否有效且深度更小
+                if (!std::isnan(search_pt.z) && search_pt.z > 0 && search_pt.z < min_depth_right) {
+                    min_depth_right = search_pt.z;
+                    best_right_x = search_x;
+                    best_right_y = search_y;
+                }
+            }
+        }
+    }
+    
+    // 获取最终的最佳点坐标
+    int best_left_index = best_left_y * cloud->width + best_left_x;
+    int best_right_index = best_right_y * cloud->width + best_right_x;
+    
+    pcl::PointXYZ best_left_pt = cloud->points[best_left_index];
+    pcl::PointXYZ best_right_pt = cloud->points[best_right_index];
+    pcl::PointXYZ best_mid_pt(
+        (best_left_pt.x + best_right_pt.x) / 2.0f,
+        (best_left_pt.y + best_right_pt.y) / 2.0f,
+        (best_left_pt.z + best_right_pt.z) / 2.0f
+    );
+
+    // ROS_INFO("Left: (%.2f, %.2f, %.2f)", best_left_pt.x, best_left_pt.y, best_left_pt.z);
+    // ROS_INFO("Right: (%.2f, %.2f, %.2f)", best_right_pt.x, best_right_pt.y, best_right_pt.z);
+    // ROS_INFO("Middle: (%.2f, %.2f, %.2f)", best_mid_pt.x, best_mid_pt.y, best_mid_pt.z);
+
+    // 通过 TF 变换，把相机坐标系的 best_mid_pt 坐标变换到底盘坐标系中
+    tf::TransformListener listener;
+    tf::StampedTransform transform;
+    try {
+        listener.waitForTransform("/base_link", "/camera_link", ros::Time(0), ros::Duration(3.0));
+        listener.lookupTransform("/base_link", "/camera_link", ros::Time(0), transform);
+    } catch (tf::TransformException& ex) {
+        ROS_WARN("%s", ex.what());
+    }
+
+    tf::Vector3 mid_pt_camera(best_mid_pt.x, best_mid_pt.y, best_mid_pt.z);
+    tf::Vector3 mid_pt_base = transform * mid_pt_camera;
+
+    ROS_INFO("Base: (%.2f, %.2f, %.2f)", mid_pt_base.x(), mid_pt_base.y(), mid_pt_base.z());
+
+    // 发布结果
+    cv_bridge::CvImage out_msg;
+    out_msg.header = rgb_msg->header;
+    out_msg.encoding = sensor_msgs::image_encodings::BGR8;
+    out_msg.image = cropped_image;
+    image_pub.publish(out_msg.toImageMsg());
+}
+
+// 主函数
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "backboard_detector");
+    ros::NodeHandle nh;
+    
+    // 读取参数
+    ros::param::param<std::string>("~model_path", model_path, "/home/rc1/cqc/R2_Real_ws/hoop.onnx");
+    ros::param::param<int>("~input_width", input_width, 640);
+    ros::param::param<int>("~input_height", input_height, 640);
+    
+    // 创建订阅者
+    message_filters::Subscriber<sensor_msgs::Image> rgb_sub(nh, "/camera/color/image_raw", 1);
+    message_filters::Subscriber<sensor_msgs::Image> depth_sub(nh, "/camera/depth/image_raw", 1);
+    message_filters::Subscriber<sensor_msgs::PointCloud2> pcl_sub(nh, "/camera/depth/points", 1);
+    
+    // 创建三个topic的同步策略
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::PointCloud2> SyncPolicy;
+    message_filters::Synchronizer<SyncPolicy> sync(SyncPolicy(10), rgb_sub, depth_sub, pcl_sub);
+    sync.registerCallback(boost::bind(&ccb, _1, _2, _3));
+    
+    // 创建发布者
+    image_transport::ImageTransport it(nh);
+    image_pub = it.advertise("/detection/result", 1);
+    yolo_pub = it.advertise("/detection/yolo", 1);
+
+    // 初始化OpenVINO
+    initOpenVINO();
+    
+    ROS_INFO("Backboard detector initialized successfully");
+    ros::spin();
+    
+    return 0;
+}

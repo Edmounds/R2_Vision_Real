@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- 启动篮球架检测节点 -->
+  <node name="backboard_detector" pkg="conqu_vision" type="backboard_detector" output="screen">
+    <!-- ONNX模型路径 -->
+    <param name="model_path" value="/home/rc1/cqc/R2_Real_ws/hoop.onnx" />
+    
+    <!-- 模型输入尺寸 -->
+    <param name="input_width" value="640" />
+    <param name="input_height" value="640" />
+    
+    <!-- 置信度阈值 -->
+    <param name="confidence_threshold" value="0.25" />
+  </node>
+
+  <!-- 可选：启动rqt_image_view来查看检测结果 -->
+  <!-- <node name="result_viewer" pkg="rqt_image_view" type="rqt_image_view" args="/detection/result" /> -->
+</launch>

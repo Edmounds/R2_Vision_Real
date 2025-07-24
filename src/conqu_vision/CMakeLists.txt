@@ -9,6 +9,7 @@ project(conqu_vision)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
+  image_transport
   roscpp
   sensor_msgs
   std_msgs
@@ -28,6 +29,10 @@ find_package(PCL REQUIRED)
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
+
+# 添加OpenVINO依赖
+find_package(OpenVINO REQUIRED COMPONENTS Runtime)
+include_directories(${OpenVINO_INCLUDE_DIRS})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -157,6 +162,14 @@ add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 target_link_libraries(backboard_detector
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
+  ${OpenVINO_LIBRARIES}
+)
+
+add_executable(backboard_detector_points src/backboard_detector_points.cpp)
+add_dependencies(backboard_detector_points ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(backboard_detector_points
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
 )
 
 ## Rename C++ executable without prefix
@@ -236,3 +249,4 @@ target_link_libraries(backboard_detector
 # target_link_libraries(lightstrip
 #   ${catkin_LIBRARIES} ${OpenCV_LIBS}
 # )
+
