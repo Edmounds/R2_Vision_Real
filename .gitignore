@@ -3,3 +3,4 @@ devel/
 *.7z
 *.zip
 *.tar.gz
+/src/cartographer

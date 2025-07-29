@@ -1,0 +1,18 @@
+** WARNING ** io features related to pcap will be disabled
+** WARNING ** io features related to png will be disabled
+** WARNING ** io features related to libusb-1.0 will be disabled
+[31m[1mCMake Error[0m at /home/rc1/cqc/R2_Real_ws/src/conqu_vision/CMakeLists.txt:211 (add_executable):
+  Cannot find source file:
+
+    src/tf_publisher.cpp
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
+  .hpp .hxx .in .txx
+
+
+[31m[1mCMake Error[0m at /home/rc1/cqc/R2_Real_ws/src/conqu_vision/CMakeLists.txt:211 (add_executable):
+  No SOURCES given to target: tf_publisher
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
+make: *** [Makefile:1844：cmake_check_build_system] 错误 1

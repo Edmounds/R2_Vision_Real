@@ -13,7 +13,9 @@ void sendCallback(const conqu_vision::ByteArray::ConstPtr& msg, serial::Serial& 
 
         std::ostringstream oss;
         for (size_t i = 0; i < data_size; i++) {
-            oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<unsigned>(msg->data[i]) << " ";
+            // 使用强制转换为 unsigned int，并且保证只显示两位十六进制数
+            oss << std::hex << std::setw(2) << std::setfill('0') 
+                << (static_cast<unsigned int>(msg->data[i]) & 0xFF) << " ";
         }
         std::string hex_str = oss.str();
         ROS_INFO("Sent: [%s]", hex_str.c_str());

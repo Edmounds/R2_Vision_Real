@@ -1,0 +1,20 @@
+<launch>
+    <!-- 启动 LSLIDAR 激光雷达驱动 -->
+    <include file="$(find lslidar_driver)/launch/lslidar_serial_double.launch" />
+
+
+    <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
+    <!-- 启动 imu -->
+    <include file="$(find conqu_vision)/launch/camera_imu.launch" />
+
+    <!-- 启动 merge.launch（激光雷达融合） -->
+    <include file="$(find conqu_vision)/launch/merge.launch" />
+
+
+    <!-- 启动 RViz -->
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" args="-d $(find conqu_vision)/rviz/lidar.rviz" />
+
+    <!-- 加载静态地图（Desktop/real.yaml）
+    <node name="map_server" pkg="map_server" type="map_server" output="screen" args="$(env HOME)/Desktop/real.yaml" /> -->
+
+</launch>

@@ -2,7 +2,7 @@
 #include <conqu_vision/ByteArray.h>
 #include <vector>
 #include <mutex>
-#include <std_msgs/Float32.h>
+#include <geometry_msgs/PointStamped.h>
 #include <std_msgs/UInt8MultiArray.h>
 #include <iomanip>
 #include <sstream>
@@ -18,42 +18,54 @@ const uint8_t PADDING_VALUE = 0x00;     //默认填充
 const size_t FIXED_FRAME_SIZE = 10;     // 固定帧长度（可根据需要修改）
 
 // 当前待发送数据
-std::vector<uint8_t> position_data(2, 0x00); // 存储位置数据的 2 字节（字节根据需要更改）
-std::vector<uint8_t> velocity_data(2, 0x00); // 存储速度数据的 2 字节
+std::vector<uint8_t> x_position_data(2, 0x00); // 存储X坐标数据的 2 字节
+std::vector<uint8_t> y_position_data(2, 0x00); // 存储Y坐标数据的 2 字节
+std::vector<uint8_t> z_position_data(2, 0x00); // 存储Z坐标数据的 2 字节
 
-// 位置数据回调
-void positionCallback(const std_msgs::Float32::ConstPtr& msg) {
-    float position = msg->data;
-    uint16_t scaled_position = static_cast<uint16_t>(position * 100);//乘100方便进行表示，获取数据
-
-    uint8_t byte0 = scaled_position & 0xFF;     //低八位储存
-    uint8_t byte1 = (scaled_position >> 8) & 0xFF;      //高八位储存
-
+// 目标位置数据回调
+void targetCallback(const geometry_msgs::PointStamped::ConstPtr& msg) {
+    // 处理X坐标
+    float x_pos = msg->point.x;
+    uint16_t scaled_x = static_cast<uint16_t>(std::abs(x_pos) * 100);  // 取绝对值并放大100倍
+    
+    // 处理Y坐标
+    float y_pos = msg->point.y;
+    uint16_t scaled_y = static_cast<uint16_t>(std::abs(y_pos) * 100);
+    
+    // 处理Z坐标
+    float z_pos = msg->point.z;
+    uint16_t scaled_z = static_cast<uint16_t>(std::abs(z_pos) * 100);
+    
+    // 转换为高低字节
+    uint8_t x_byte0 = scaled_x & 0xFF;        // X坐标低八位
+    uint8_t x_byte1 = (scaled_x >> 8) & 0xFF;  // X坐标高八位
+    
+    uint8_t y_byte0 = scaled_y & 0xFF;        // Y坐标低八位
+    uint8_t y_byte1 = (scaled_y >> 8) & 0xFF;  // Y坐标高八位
+    
+    uint8_t z_byte0 = scaled_z & 0xFF;        // Z坐标低八位
+    uint8_t z_byte1 = (scaled_z >> 8) & 0xFF;  // Z坐标高八位
+    
+    // 更新数据（加锁保护）
     std::lock_guard<std::mutex> lock(data_mutex);
-    position_data[0] = byte0;   //进行存储
-    position_data[1] = byte1;
-}
-
-// 速度数据回调（逻辑同上）
-void velocityCallback(const std_msgs::Float32::ConstPtr& msg) {
-    float velocity = msg->data;
-    uint16_t scaled_velocity = static_cast<uint16_t>(velocity * 100);
-
-    uint8_t byte0 = scaled_velocity & 0xFF;
-    uint8_t byte1 = (scaled_velocity >> 8) & 0xFF;
-
-    std::lock_guard<std::mutex> lock(data_mutex);
-    velocity_data[0] = byte0;
-    velocity_data[1] = byte1;
+    x_position_data[0] = x_byte0;
+    x_position_data[1] = x_byte1;
+    
+    y_position_data[0] = y_byte0;
+    y_position_data[1] = y_byte1;
+    
+    z_position_data[0] = z_byte0;
+    z_position_data[1] = z_byte1;
+    
+    ROS_INFO("接收到坐标: (%.2f, %.2f, %.2f)", x_pos, y_pos, z_pos);
 }
 
 int main(int argc, char** argv) {
     ros::init(argc, argv, "serial_sender");
     ros::NodeHandle nh;
 
-    // 订阅两个话题
-    ros::Subscriber pos_sub = nh.subscribe("float_topic", 10, positionCallback);
-    ros::Subscriber vel_sub = nh.subscribe("shooting_velocity", 10, velocityCallback);
+    // 订阅目标位置话题
+    ros::Subscriber target_sub = nh.subscribe("/target", 10, targetCallback);
 
     ros::Publisher pub = nh.advertise<conqu_vision::ByteArray>("serial_send", 10);
 
@@ -62,19 +74,21 @@ int main(int argc, char** argv) {
     while (ros::ok()) {
         conqu_vision::ByteArray msg;
 
-        // 获取两个数据的副本
-        std::vector<uint8_t> pos_buffer, vel_buffer;
+        // 获取坐标数据的副本
+        std::vector<uint8_t> x_buffer, y_buffer, z_buffer;
         {
             std::lock_guard<std::mutex> lock(data_mutex);
-            pos_buffer = position_data;
-            vel_buffer = velocity_data;
+            x_buffer = x_position_data;
+            y_buffer = y_position_data;
+            z_buffer = z_position_data;
         }
 
-        // 构造完整帧（这里可以改长度的）
+        // 构造完整帧
         std::vector<uint8_t> send_buffer = {
-            FRAME_HEADER,       // 0x34
-            pos_buffer[0], pos_buffer[1],  // 位置数据 2 字节
-            vel_buffer[0], vel_buffer[1]   // 速度数据 2 字节
+            FRAME_HEADER,       // 0xAA
+            x_buffer[0], x_buffer[1],  // X坐标数据 2 字节
+            y_buffer[0], y_buffer[1],  // Y坐标数据 2 字节
+            z_buffer[0], z_buffer[1]   // Z坐标数据 2 字节
             // 剩余字节在后面填充
         };
         const size_t padding_size = FIXED_FRAME_SIZE - send_buffer.size() - 1; // 减去尾部占用的 1 字节

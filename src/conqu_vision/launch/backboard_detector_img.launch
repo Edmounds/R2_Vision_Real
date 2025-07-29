@@ -85,6 +85,16 @@
   <node pkg="tf" type="static_transform_publisher" name="camera_link_broadcaster"
         args="0 0 0 0 0 0 camera_bottom_screw_frame camera_link 100" />
 
+  <!-- 启动串口通信节点-->
+  <!-- 串口通信主节点 -->
+  <node pkg="conqu_vision" type="serial_comm" name="serial_node" output="screen">
+    <param name="port" value="/dev/ttyUSB0" />  <!-- 串口设备路径 -->
+    <param name="baud" value="115200" />        <!-- 波特率 -->
+  </node>
+
+  <!-- 串口数据发送节点 -->
+  <node pkg="conqu_vision" type="serial_send" name="serial_sender_node" />
+
   <!-- 条件启动 RViz -->
   <node if="$(arg show_rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 </launch>

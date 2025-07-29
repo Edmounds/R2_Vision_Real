@@ -1,0 +1,8 @@
+lsx10/lslidar_driver
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/lib/liblslidar_driver.so /home/rc1/cqc/R2_Real_ws/devel/lib/liblslidar_driver.so
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/lib/liblslidar_serial.so /home/rc1/cqc/R2_Real_ws/devel/lib/liblslidar_serial.so
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/lib/liblslidar_input.so /home/rc1/cqc/R2_Real_ws/devel/lib/liblslidar_input.so
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/lib/pkgconfig/lslidar_driver.pc /home/rc1/cqc/R2_Real_ws/devel/lib/pkgconfig/lslidar_driver.pc
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/lib/lslidar_driver/lslidar_driver_node /home/rc1/cqc/R2_Real_ws/devel/lib/lslidar_driver/lslidar_driver_node
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/share/lslidar_driver/cmake/lslidar_driverConfig-version.cmake /home/rc1/cqc/R2_Real_ws/devel/share/lslidar_driver/cmake/lslidar_driverConfig-version.cmake
+/home/rc1/cqc/R2_Real_ws/devel/.private/lslidar_driver/share/lslidar_driver/cmake/lslidar_driverConfig.cmake /home/rc1/cqc/R2_Real_ws/devel/share/lslidar_driver/cmake/lslidar_driverConfig.cmake

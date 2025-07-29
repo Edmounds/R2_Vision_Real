@@ -37,9 +37,9 @@ include_directories(${OpenVINO_INCLUDE_DIRS})
 
 
 find_package(PkgConfig)
-pkg_check_modules(SERIAL libserial)
-include_directories(${SERIAL_INCLUDE_DIRS})
-link_directories(${SERIAL_LIBRARY_DIRS})
+# 修改为直接查找serial库，而不是libserial
+find_package(serial REQUIRED)
+include_directories(${serial_INCLUDE_DIRS})
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(MICROHTTPD REQUIRED libmicrohttpd)
@@ -138,7 +138,7 @@ catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES conqu_lightstrip_sim
   CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros message_runtime
-  DEPENDS PCL SERIAL
+  DEPENDS PCL serial
 )
 
 ###########
@@ -176,12 +176,12 @@ target_link_libraries(backboard_detector
   openvino::runtime
 )
 
-add_executable(backboard_detector_points src/backboard_detector_points.cpp)
-add_dependencies(backboard_detector_points ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(backboard_detector_points
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-)
+# add_executable(backboard_detector_points src/backboard_detector_points.cpp)
+# add_dependencies(backboard_detector_points ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(backboard_detector_points
+#   ${catkin_LIBRARIES}
+#   ${PCL_LIBRARIES}
+# )
 
 add_executable(serial_send src/serial_sender.cpp)
 target_link_libraries(serial_send
@@ -190,21 +190,23 @@ target_link_libraries(serial_send
 )
 add_dependencies(serial_send ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(data_pro src/data_process.cpp)
-target_link_libraries(data_pro
+
+# 串口通信节点
+add_executable(serial_comm src/serial.cpp)
+target_link_libraries(serial_comm
   ${catkin_LIBRARIES}
   ${serial_LIBRARIES}
 )
-
+add_dependencies(serial_comm ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # 相机画面传输节点
 add_executable(camera_deliver src/camera_deliver.cpp)
 target_link_libraries(camera_deliver
   ${catkin_LIBRARIES}
-  ${serial_LIBRARIES}
   ${MICROHTTPD_LIBRARIES}
 )
 add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

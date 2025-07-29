@@ -15,6 +15,7 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <tf/transform_listener.h>
+#include <geometry_msgs/PointStamped.h>
 
 // OpenVINO相关
 ov::Core core;
@@ -26,6 +27,7 @@ int input_width;
 int input_height;
 
 image_transport::Publisher image_pub, yolo_pub;
+ros::Publisher target_pub;  // 目标点发布者
 
 // 初始化OpenVINO
 void initOpenVINO() {
@@ -431,6 +433,15 @@ void ccb(
 
     ROS_INFO("Base: (%.2f, %.2f, %.2f)", mid_pt_base.x(), mid_pt_base.y(), mid_pt_base.z());
 
+    // 发布目标点坐标
+    geometry_msgs::PointStamped target_msg;
+    target_msg.header.stamp = ros::Time::now();
+    target_msg.header.frame_id = "base_link";
+    target_msg.point.x = mid_pt_base.x();
+    target_msg.point.y = mid_pt_base.y();
+    target_msg.point.z = mid_pt_base.z();
+    target_pub.publish(target_msg);
+
     // 发布结果
     cv_bridge::CvImage out_msg;
     out_msg.header = rgb_msg->header;
@@ -463,6 +474,7 @@ int main(int argc, char** argv) {
     image_transport::ImageTransport it(nh);
     image_pub = it.advertise("/detection/result", 1);
     yolo_pub = it.advertise("/detection/yolo", 1);
+    target_pub = nh.advertise<geometry_msgs::PointStamped>("/target", 1);
 
     // 初始化OpenVINO
     initOpenVINO();

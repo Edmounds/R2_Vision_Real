@@ -1,0 +1,22 @@
+<launch>
+
+    <!-- 激光扫描融合节点 -->
+    <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
+        <param name="destination_frame" value="base_link" />
+        <param name="scan_destination_topic" value="/scan" />
+        <!-- 调整扫描角度，确保覆盖两侧 -->
+        <param name="angle_min" value="-3.5"/> <!-- -180° -->
+        <param name="angle_max" value="3.5"/>  <!-- +180° -->
+        <!-- 激光雷达话题：左和右 -->
+        <param name="laserscan_topics" value="/LeftLidar/scan1 /RightLidar/scan2 " />
+
+        <!-- ✅ 自动填充盲区 -->
+        <!-- <param name="fill_empty_ranges" value="true" />
+        <param name="fill_method" value="linear" />
+        <param name="fill_max_distance" value="0.6" /> -->
+
+        <!-- ✅ 平滑激光数据，消除抖动 -->
+        <param name="use_average" value="true" />
+        <param name="ignore_laser_frame" value="false" />
+    </node>
+</launch>
