@@ -1,0 +1,28 @@
+<launch>    
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find conqu_vision)/worlds/conqu.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="verbose" 	value="true"/>
+    </include>
+
+    <!-- 等待 Gazebo 启动后，调用 reset 服务 -->
+    <!-- <node name="reset_gazebo" pkg="roslaunch" type="roslaunch" args="$(find gazebo_ros)/scripts/gzclient_reset.py" /> -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find conqu_vision)/model/base.urdf -urdf -model rc_baseplate" />
+
+    <arg name="model" default="$(find conqu_vision)/model/base.urdf"/>
+    <param name="robot_description" textfile="$(arg model)" />
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+     <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"/>
+    <!-- <node name="map_server" pkg="map_server" type="map_server" args="$(find conqu_vision)/map/rcmap.yaml"/> -->
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find conqu_vision)/rviz/rc.config.rviz" /> 
+
+    <!-- <node name="position_node" pkg="conqu" type="position_node"/> -->
+</launch>

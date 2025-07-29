@@ -1,0 +1,88 @@
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_py[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_py[0m
+[  0%] Built target sensor_msgs_generate_messages_cpp
+[  0%] Built target geometry_msgs_generate_messages_nodejs
+[  0%] Built target roscpp_generate_messages_py
+[  0%] Built target std_msgs_generate_messages_lisp
+[  0%] Built target geometry_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_py
+[  0%] Built target rosgraph_msgs_generate_messages_nodejs
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_py[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_lisp[0m
+[  0%] Built target rosgraph_msgs_generate_messages_py
+[35m[1mScanning dependencies of target sensor_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_py[0m
+[  0%] Built target sensor_msgs_generate_messages_nodejs
+[35m[1mScanning dependencies of target roscpp_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_cpp[0m
+[  0%] Built target sensor_msgs_generate_messages_eus
+[  0%] Built target sensor_msgs_generate_messages_py
+[  0%] Built target sensor_msgs_generate_messages_lisp
+[  0%] Built target geometry_msgs_generate_messages_py
+[  0%] Built target roscpp_generate_messages_lisp
+[  0%] Built target roscpp_generate_messages_cpp
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[35m[1mScanning dependencies of target std_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_cpp[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_eus[0m
+[35m[1mScanning dependencies of target std_msgs_generate_messages_nodejs[0m
+[35m[1mScanning dependencies of target roscpp_generate_messages_eus[0m
+[  0%] Built target std_msgs_generate_messages_eus
+[  0%] Built target std_msgs_generate_messages_cpp
+[  0%] Built target roscpp_generate_messages_nodejs
+[  0%] Built target rosgraph_msgs_generate_messages_cpp
+[  0%] Built target std_msgs_generate_messages_nodejs
+[  0%] Built target geometry_msgs_generate_messages_eus
+[  0%] Built target roscpp_generate_messages_eus
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_lisp[0m
+[35m[1mScanning dependencies of target rosgraph_msgs_generate_messages_eus[0m
+[  0%] Built target rosgraph_msgs_generate_messages_lisp
+[  0%] Built target rosgraph_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target hsv_adjust[0m
+[35m[1mScanning dependencies of target relocalization[0m
+[35m[1mScanning dependencies of target localization[0m
+[35m[1mScanning dependencies of target load_lines_map[0m
+[35m[1mScanning dependencies of target table_dist[0m
+[35m[1mScanning dependencies of target loc_sidelines[0m
+[35m[1mScanning dependencies of target calibrate_dist[0m
+[  4%] [32mBuilding CXX object CMakeFiles/table_dist.dir/src/table_dist.cpp.o[0m
+[  8%] [32mBuilding CXX object CMakeFiles/table_dist.dir/src/utility/distance_lookup.cpp.o[0m
+[ 12%] [32mBuilding CXX object CMakeFiles/localization.dir/src/localization.cpp.o[0m
+[ 16%] [32mBuilding CXX object CMakeFiles/loc_sidelines.dir/src/loc_sidelines.cpp.o[0m
+[ 20%] [32mBuilding CXX object CMakeFiles/hsv_adjust.dir/src/hsv_adjust.cpp.o[0m
+[ 25%] [32mBuilding CXX object CMakeFiles/load_lines_map.dir/src/load_lines_map.cpp.o[0m
+[ 29%] [32mBuilding CXX object CMakeFiles/calibrate_dist.dir/src/calibrate_dist.cpp.o[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/relocalization.dir/src/relocalization.cpp.o[0m
+[ 37%] [32mBuilding CXX object CMakeFiles/localization.dir/src/utility/distance_lookup.cpp.o[0m
+[ 41%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/table_dist[0m
+[ 41%] Built target table_dist
+[ 45%] [32mBuilding CXX object CMakeFiles/localization.dir/src/utility/lines_map.cpp.o[0m
+[ 50%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/hsv_adjust[0m
+[ 50%] Built target hsv_adjust
+[ 54%] [32mBuilding CXX object CMakeFiles/relocalization.dir/src/utility/distance_lookup.cpp.o[0m
+[ 58%] [32mBuilding CXX object CMakeFiles/load_lines_map.dir/src/utility/lines_map.cpp.o[0m
+[ 62%] [32mBuilding CXX object CMakeFiles/relocalization.dir/src/utility/lines_map.cpp.o[0m
+[ 66%] [32mBuilding CXX object CMakeFiles/relocalization.dir/src/utility/lines_matcher.cpp.o[0m
+[ 70%] [32mBuilding CXX object CMakeFiles/loc_sidelines.dir/src/utility/distance_lookup.cpp.o[0m
+[ 75%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/calibrate_dist[0m
+[ 79%] [32mBuilding CXX object CMakeFiles/loc_sidelines.dir/src/utility/lines_map.cpp.o[0m
+[ 83%] [32mBuilding CXX object CMakeFiles/loc_sidelines.dir/src/utility/lines_matcher.cpp.o[0m
+[ 83%] Built target calibrate_dist
+[ 87%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/localization[0m
+[ 87%] Built target localization
+[ 91%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/load_lines_map[0m
+[ 95%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/relocalization[0m
+[ 95%] Built target load_lines_map
+[ 95%] Built target relocalization
+[100%] [32m[1mLinking CXX executable /home/rc1/cqc/R2_Real_ws/devel/.private/robocon_localization/lib/robocon_localization/loc_sidelines[0m
+[100%] Built target loc_sidelines

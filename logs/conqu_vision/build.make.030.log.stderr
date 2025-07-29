@@ -1,0 +1,24 @@
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:[m[K In constructor ‘[01m[KSyncImuLidar::SyncImuLidar()[m[K’:
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:20:51:[m[K [01;31m[Kerror: [m[K‘[01m[Ksync_policies[m[K’ was not declared in this scope; did you mean ‘[01m[Kmessage_filters::sync_policies[m[K’?
+   20 |         sync_ = new message_filters::Synchronizer<[01;31m[Ksync_policies[m[K::ApproximateTime<sensor_msgs::Imu, sensor_msgs::LaserScan>>(
+      |                                                   [01;31m[K^~~~~~~~~~~~~[m[K
+      |                                                   [32m[Kmessage_filters::sync_policies[m[K
+In file included from [01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:4[m[K:
+[01m[K/opt/ros/noetic/include/message_filters/sync_policies/approximate_time.h:65:11:[m[K [01;36m[Knote: [m[K‘[01m[Kmessage_filters::sync_policies[m[K’ declared here
+   65 | namespace [01;36m[Ksync_policies[m[K
+      |           [01;36m[K^~~~~~~~~~~~~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:20:122:[m[K [01;31m[Kerror: [m[Ktemplate argument 1 is invalid
+   20 |         sync_ = new message_filters::Synchronizer<sync_policies::ApproximateTime<sensor_msgs::Imu, sensor_msgs::LaserScan[01;31m[K>>[m[K(
+      |                                                                                                                          [01;31m[K^~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:21:13:[m[K [01;31m[Kerror: [m[K‘[01m[Ksync_policies[m[K’ is not a class, namespace, or enumeration
+   21 |             [01;31m[Ksync_policies[m[K::ApproximateTime<sensor_msgs::Imu, sensor_msgs::LaserScan>(10, 0.1),
+      |             [01;31m[K^~~~~~~~~~~~~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:21:60:[m[K [01;31m[Kerror: [m[Kexpected primary-expression before ‘[01m[K,[m[K’ token
+   21 |             sync_policies::ApproximateTime<sensor_msgs::Imu[01;31m[K,[m[K sensor_msgs::LaserScan>(10, 0.1),
+      |                                                            [01;31m[K^[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/sync_imu_lidar.cpp:21:84:[m[K [01;31m[Kerror: [m[Kexpected primary-expression before ‘[01m[K>[m[K’ token
+   21 |             sync_policies::ApproximateTime<sensor_msgs::Imu, sensor_msgs::LaserScan[01;31m[K>[m[K(10, 0.1),
+      |                                                                                    [01;31m[K^[m[K
+make[2]: *** [CMakeFiles/sync_imu_lidar.dir/build.make:63：CMakeFiles/sync_imu_lidar.dir/src/sync_imu_lidar.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:1307：CMakeFiles/sync_imu_lidar.dir/all] 错误 2
+make: *** [Makefile:141：all] 错误 2

@@ -207,6 +207,9 @@ target_link_libraries(camera_deliver
 )
 add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+# 激光雷达和imu同步节点
+add_executable(sync_imu_lidar src/sync_imu_lidar.cpp)
+target_link_libraries(sync_imu_lidar ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

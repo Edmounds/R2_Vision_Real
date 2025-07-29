@@ -8,12 +8,12 @@
         <param name="angle_min" value="-3.5"/> <!-- -180° -->
         <param name="angle_max" value="3.5"/>  <!-- +180° -->
         <!-- 激光雷达话题：左和右 -->
-        <param name="laserscan_topics" value="/LeftLidar/scan1 /RightLidar/scan2 " />
+        <param name="laserscan_topics" value=" /RightLidar/scan2 /LeftLidar/scan1" />
 
         <!-- ✅ 自动填充盲区 -->
-        <!-- <param name="fill_empty_ranges" value="true" />
+        <param name="fill_empty_ranges" value="true" />
         <param name="fill_method" value="linear" />
-        <param name="fill_max_distance" value="0.6" /> -->
+        <param name="fill_max_distance" value="0.6" />
 
         <!-- ✅ 平滑激光数据，消除抖动 -->
         <param name="use_average" value="true" />
