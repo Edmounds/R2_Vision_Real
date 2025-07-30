@@ -2,7 +2,7 @@
 
     <!-- 激光扫描融合节点 -->
     <node pkg="ira_laser_tools" name="laserscan_multi_merger" type="laserscan_multi_merger" output="screen">
-        <param name="destination_frame" value="base_link" />
+        <param name="destination_frame" value="laser" />
         <param name="scan_destination_topic" value="/scan" />
         <!-- 调整扫描角度，确保覆盖两侧 -->
         <param name="angle_min" value="-3.5"/> <!-- -180° -->

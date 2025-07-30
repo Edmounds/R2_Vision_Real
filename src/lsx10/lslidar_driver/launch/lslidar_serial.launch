@@ -16,8 +16,8 @@
   </node>
 
       <!-- 镭神雷达参数 -->
-    <!-- <param name="lslidar_driver_node/truncated_mode" value="0"/>    
+    <param name="lslidar_driver_node/truncated_mode" value="0"/>    
     <rosparam param="lslidar_driver_node/disable_min">[80]</rosparam> 
-    <rosparam param="lslidar_driver_node/disable_max">[280]</rosparam>  -->
+    <rosparam param="lslidar_driver_node/disable_max">[280]</rosparam> 
     <!-- 镭神雷达参数 -->
 </launch>     

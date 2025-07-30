@@ -1,44 +1,48 @@
 <launch>
-
+  <!-- RightLidar 节点 -->
   <node pkg="lslidar_driver" type="lslidar_driver_node" name="right_driver_node" output="screen" ns="RightLidar">
-    <param name="lidar_name" value="N10"/>                          #雷达选择:M10 M10_P M10_PLUS M10_GPS N10 L10 N10_P
-    <param name="serial_port" value="/dev/laser2"/>                #雷达连接的串口
-    <param name="interface_selection" value="serial"/>              #接口选择:net 为网口,serial 为串口。
-    <param name="frame_id" value="laser2_link"/>                     #激光坐标
-    <param name="scan_topic" value="scan2"/>                         #设置激光数据topic名称
-    <param name="angle_disable_min" value="0.0"/>                   #角度裁剪开始值
-    <param name="angle_disable_max" value="0.0"/>                   #角度裁剪结束值
-    <param name="min_range" value="0.15"/>                                             #雷达接收距离最小值
-    <param name="max_range" value="50.0"/>                          #雷达接收距离最大值
-    <param name="use_gps_ts" value="false"/>                        #雷达是否使用GPS授时
-    <param name="compensation" value="false"/>                      #雷达是否使用角度补偿功能
-    <param name="pubScan" value="true"/>                            #雷达是否发布scan话题
-    <param name="pubPointCloud2" value="false"/>                    #雷达是否发布pointcloud2话题
-    <param name="high_reflection" value="false"/>                   #M10_P雷达需填写该值,若不确定，请联系技术支持。
-    <param name="angle_disable_min" value="180"/>
-    <param name="angle_disable_max" value="360"/>
+    <param name="lidar_name" value="N10"/>                          # 雷达型号
+    <param name="serial_port" value="/dev/laser2"/>                # 串口
+    <param name="interface_selection" value="serial"/>             # 接口类型
+    <param name="frame_id" value="laser2_link"/>                   # 激光坐标
+    <param name="scan_topic" value="scan2"/>                       # 激光数据 topic
+    <param name="min_range" value="0.15"/>                         # 最小距离
+    <param name="max_range" value="50.0"/>                         # 最大距离
+    <param name="use_gps_ts" value="false"/>                       # 不使用 GPS 授时
+    <param name="compensation" value="false"/>                     # 不使用角度补偿
+    <param name="pubScan" value="true"/>                           # 发布 scan 话题
+    <param name="pubPointCloud2" value="false"/>                   # 不发布 pointcloud2 话题
+    <param name="high_reflection" value="false"/>                  # M10_P 专用参数
+
+    <!-- 屏蔽角度设置 -->
+    <param name="truncated_mode" value="1"/>                       # 启用屏蔽角度（根据需要调整）
+    <rosparam param="disable_min">[10]</rosparam>                  # 屏蔽角度最小值
+    <rosparam param="disable_max">[170]</rosparam>                 # 屏蔽角度最大值
+
   </node>
 
-
+  <!-- LeftLidar 节点 -->
   <node pkg="lslidar_driver" type="lslidar_driver_node" name="left_driver_node" output="screen" ns="LeftLidar">
-    <param name="lidar_name" value="N10_P"/>                          #雷达选择:M10 M10_P M10_PLUS M10_GPS N10 L10 N10_P
-    <param name="serial_port" value="/dev/laser1"/>                #雷达连接的串口
-    <param name="interface_selection" value="serial"/>              #接口选择:net 为网口,serial 为串口。
-    <param name="frame_id" value="laser1_link"/>                     #激光坐标dfa
-    <param name="scan_topic" value="scan1"/>                         #设置激光数据topic名称
-    <param name="angle_disable_min" value="0.0"/>                   #角度裁剪开始值
-    <param name="angle_disable_max" value="0.0"/>                   #角度裁剪结束值sd
-    <param name="min_range" value="0.15"/>                                             #雷达接收距离最小值
-    <param name="max_range" value="50.0"/>                          #雷达接收距离最大值
-    <param name="use_gps_ts" value="false"/>                        #雷达是否使用GPS授时
-    <param name="compensation" value="false"/>                      #雷达是否使用角度补偿功能
-    <param name="pubScan" value="true"/>                            #雷达是否发布scan话题
-    <param name="pubPointCloud2" value="false"/>                    #雷达是否发布pointcloud2话题
-    <param name="high_reflection" value="false"/>                   #M10_P雷达需填写该值,若不确定，请联系技术支持。
+    <param name="lidar_name" value="N10_P"/>                       # 雷达型号
+    <param name="serial_port" value="/dev/laser1"/>                # 串口
+    <param name="interface_selection" value="serial"/>             # 接口类型
+    <param name="frame_id" value="laser1_link"/>                   # 激光坐标
+    <param name="scan_topic" value="scan1"/>                       # 激光数据 topic
+    <param name="min_range" value="0.15"/>                         # 最小距离
+    <param name="max_range" value="50.0"/>                         # 最大距离
+    <param name="use_gps_ts" value="false"/>                       # 不使用 GPS 授时
+    <param name="compensation" value="false"/>   +`+++                  # 不使用角度补偿
+    <param name="pubScan" value="true"/>                           # 发布 scan 话题
+    <param name="pubPointCloud2" value="false"/>                   # 不发布 pointcloud2 话题
+    <param name="high_reflection" value="false"/>                  # M10_P 专用参数
 
-    <param name="angle_disable_min" value="90"/>
-    <param name="angle_disable_max" value="270"/>
+    <!-- 屏蔽角度设置 -->
+    <param name="truncated_mode" value="1"/>                       # 启用屏蔽角度（根据需要调整）
+
+    <rosparam param="disable_min">[100]</rosparam>                 # 屏蔽角度最小值
+    <rosparam param="disable_max">[260]</rosparam>                 # 屏蔽角度最大值
   </node>
 
-<!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lslidar_driver)/rviz/lslidar.rviz" output="screen"/>      #雷达点云配置 -->
+  <!-- 可选：启动 RViz 进行可视化 -->
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lslidar_driver)/rviz/lslidar.rviz" output="screen"/> -->
 </launch>

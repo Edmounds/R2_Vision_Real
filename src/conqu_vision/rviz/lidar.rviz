@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /Submaps1
         - /PointCloud21
       Splitter Ratio: 0.6006709933280945
@@ -60,8 +61,6 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
-        camera_accel_frame:
-          Value: true
         camera_accel_gyro_optical_frame:
           Value: true
         camera_accel_optical_frame:
@@ -75,10 +74,6 @@ Visualization Manager:
         camera_depth_frame:
           Value: true
         camera_depth_optical_frame:
-          Value: true
-        camera_gyro_frame:
-          Value: true
-        camera_gyro_optical_frame:
           Value: true
         camera_left_ir_frame:
           Value: true
@@ -105,11 +100,22 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
+        camera_accel_optical_frame:
+          camera_accel_gyro_optical_frame:
+            {}
         map:
           odom:
             base_link:
               camera_link:
                 camera_bottom_screw_frame:
+                  camera_color_frame:
+                    {}
+                  camera_color_optical_frame:
+                    {}
+                  camera_depth_frame:
+                    {}
+                  camera_depth_optical_frame:
+                    {}
                   camera_left_ir_frame:
                     {}
                   camera_left_ir_optical_frame:
@@ -118,19 +124,6 @@ Visualization Manager:
                     {}
                   camera_right_ir_optical_frame:
                     {}
-                camera_depth_frame:
-                  camera_accel_frame:
-                    camera_accel_optical_frame:
-                      camera_accel_gyro_optical_frame:
-                        {}
-                  camera_color_frame:
-                    camera_color_optical_frame:
-                      {}
-                  camera_depth_optical_frame:
-                    {}
-                  camera_gyro_frame:
-                    camera_gyro_optical_frame:
-                      {}
               laser1_link:
                 {}
               laser2_link:
@@ -149,7 +142,7 @@ Visualization Manager:
         All: true
         All Submap Pose Markers: true
         Trajectory 0:
-          0.46: true
+          0.6: true
           Submap Pose Markers: true
           Value: true
       Topic: /submap_list
@@ -237,7 +230,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 10.800657272338867
+      Distance: 14.700397491455078
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -253,9 +246,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.5647963285446167
+      Pitch: 0.8247972130775452
       Target Frame: <Fixed Frame>
-      Yaw: 0.4749998450279236
+      Yaw: 0.4750135540962219
     Saved: ~
 Window Geometry:
   Displays:

@@ -5,7 +5,7 @@
 
     <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
     <!-- 启动 imu -->
-    <include file="$(find conqu_vision)/launch/camera_imu.launch" />
+    <!-- <include file="$(find conqu_vision)/launch/camera_imu.launch" /> -->
     
     <!-- 启动 merge.launch（激光雷达融合） -->
     <include file="$(find conqu_vision)/launch/merge.launch" />
@@ -17,11 +17,11 @@
         -configuration_basename backpack_2d.lua"
     output="screen">
     <!-- <remap from="imu" to="/camera/gyro_accel/sample" /> -->
-    <remap from="imu" to="/imu_filter" />
+    <!-- <remap from="imu" to="/imu/filter" /> -->
     </node>
 
     <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-      type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+      type="cartographer_occupancy_grid_node" args="-resolution 0.1" />
 
     <!-- 启动 RViz -->
     <node pkg="rviz" type="rviz" name="rviz" output="screen" args="-d $(find conqu_vision)/rviz/lidar.rviz" />
