@@ -15,6 +15,8 @@
     <param name="pubScan" value="true"/>                            #雷达是否发布scan话题
     <param name="pubPointCloud2" value="false"/>                    #雷达是否发布pointcloud2话题
     <param name="high_reflection" value="false"/>                   #M10_P雷达需填写该值,若不确定，请联系技术支持。
+    <param name="angle_disable_min" value="180"/>
+    <param name="angle_disable_max" value="360"/>
   </node>
 
 
@@ -34,6 +36,8 @@
     <param name="pubPointCloud2" value="false"/>                    #雷达是否发布pointcloud2话题
     <param name="high_reflection" value="false"/>                   #M10_P雷达需填写该值,若不确定，请联系技术支持。
 
+    <param name="angle_disable_min" value="90"/>
+    <param name="angle_disable_max" value="270"/>
   </node>
 
 <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lslidar_driver)/rviz/lslidar.rviz" output="screen"/>      #雷达点云配置 -->

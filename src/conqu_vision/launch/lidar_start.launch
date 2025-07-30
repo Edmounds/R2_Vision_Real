@@ -16,8 +16,8 @@
         -configuration_directory $(find cartographer_ros)/configuration_files
         -configuration_basename backpack_2d.lua"
     output="screen">
-    <remap from="echoes" to="scan" />
-    <remap from="imu" to="/camera/gyro_accel/sample" />
+    <!-- <remap from="imu" to="/camera/gyro_accel/sample" /> -->
+    <remap from="imu" to="/imu_filter" />
     </node>
 
     <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
