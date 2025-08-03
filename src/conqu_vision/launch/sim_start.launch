@@ -1,0 +1,43 @@
+<launch>   
+     <param name="/localization" type="bool" value = "0"/>
+
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find conqu_vision)/worlds/conqu.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="recording" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="verbose" 	value="true"/>
+    </include>
+
+
+    <!-- 等待 Gazebo 启动后，调用 reset 服务 -->
+    <!-- <node name="reset_gazebo" pkg="roslaunch" type="roslaunch" args="$(find gazebo_ros)/scripts/gzclient_reset.py" /> -->
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find conqu_vision)/model/base.urdf -urdf -model rc_baseplate" />
+
+    <arg name="model" default="$(find conqu_vision)/model/base.urdf"/>
+    <param name="robot_description" textfile="$(arg model)" />
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+     <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"/>
+
+        <!-- 启动 merge.launch（激光雷达融合） -->
+    <!-- <include file="$(find conqu_vision)/launch/merge.launch" /> -->
+
+        <!-- 启动cartographer节点2D建图 -->
+    <node name="cartographer_node" pkg="cartographer_ros"
+    type="cartographer_node" args="
+        -configuration_directory $(find cartographer_ros)/configuration_files
+        -configuration_basename backpack_2d.lua"
+    output="screen">
+    </node>
+
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+      type="cartographer_occupancy_grid_node" args="-resolution 0.1" />
+
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find conqu_vision)/rviz/sim.rviz" /> 
+
+</launch>

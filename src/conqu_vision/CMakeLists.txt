@@ -168,13 +168,13 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/conqu_localization_node.cpp)
 
 # 添加篮球框识别节点
-add_executable(backboard_detector src/backboard_detector.cpp)
-add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(backboard_detector
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  openvino::runtime
-)
+# add_executable(backboard_detector src/backboard_detector.cpp)
+# add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# target_link_libraries(backboard_detector
+#   ${catkin_LIBRARIES}
+#   ${PCL_LIBRARIES}
+#   openvino::runtime
+# )
 
 # add_executable(backboard_detector_points src/backboard_detector_points.cpp)
 # add_dependencies(backboard_detector_points ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -207,9 +207,9 @@ target_link_libraries(camera_deliver
 )
 add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-# 激光雷达和imu同步节点
-add_executable(sync_imu_lidar src/sync_imu_lidar.cpp)
-target_link_libraries(sync_imu_lidar ${catkin_LIBRARIES})
+
+add_executable(data_process_node src/data_process.cpp)
+target_link_libraries(data_process_node ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

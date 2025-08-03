@@ -1,0 +1,32 @@
+<launch>
+     <param name="/localization" type="bool" value = "0"/>
+    <!-- 启动 LSLIDAR 激光雷达驱动 -->
+    <include file="$(find lslidar_driver)/launch/lslidar_serial_double.launch" />
+    <!-- <include file="$(find laser_double)/launch/laser_double.launch" /> -->
+
+    <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
+    <!-- 启动 imu -->
+    <!-- <include file="$(find conqu_vision)/launch/camera_imu.launch" /> -->
+    
+    <!-- 启动 merge.launch（激光雷达融合） -->
+    <include file="$(find conqu_vision)/launch/merge.launch" />
+
+    <!-- 启动cartographer节点2D建图 -->
+    <node name="cartographer_node" pkg="cartographer_ros"
+    type="cartographer_node" args="
+        -configuration_directory $(find cartographer_ros)/configuration_files
+        -configuration_basename backpack_2d.lua"
+    output="screen">
+    </node>
+
+    <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
+      type="cartographer_occupancy_grid_node" args="-resolution 0.1" />
+
+    <!-- 启动 RViz -->
+    <node pkg="rviz" type="rviz" name="rviz" output="screen" args="-d $(find conqu_vision)/rviz/lidar.rviz" />
+
+
+    <!-- 加载静态地图（Desktop/real.yaml）
+    <node name="map_server" pkg="map_server" type="map_server" output="screen" args="$(env HOME)/Desktop/real.yaml" /> -->
+
+</launch>
