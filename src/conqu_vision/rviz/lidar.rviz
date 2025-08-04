@@ -61,30 +61,6 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
-        camera_accel_gyro_optical_frame:
-          Value: true
-        camera_accel_optical_frame:
-          Value: true
-        camera_bottom_screw_frame:
-          Value: true
-        camera_color_frame:
-          Value: true
-        camera_color_optical_frame:
-          Value: true
-        camera_depth_frame:
-          Value: true
-        camera_depth_optical_frame:
-          Value: true
-        camera_left_ir_frame:
-          Value: true
-        camera_left_ir_optical_frame:
-          Value: true
-        camera_link:
-          Value: true
-        camera_right_ir_frame:
-          Value: true
-        camera_right_ir_optical_frame:
-          Value: true
         laser1_link:
           Value: true
         laser2_link:
@@ -100,30 +76,9 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        camera_accel_optical_frame:
-          camera_accel_gyro_optical_frame:
-            {}
         map:
           odom:
             base_link:
-              camera_link:
-                camera_bottom_screw_frame:
-                  camera_color_frame:
-                    {}
-                  camera_color_optical_frame:
-                    {}
-                  camera_depth_frame:
-                    {}
-                  camera_depth_optical_frame:
-                    {}
-                  camera_left_ir_frame:
-                    {}
-                  camera_left_ir_optical_frame:
-                    {}
-                  camera_right_ir_frame:
-                    {}
-                  camera_right_ir_optical_frame:
-                    {}
               laser1_link:
                 {}
               laser2_link:
@@ -142,7 +97,14 @@ Visualization Manager:
         All: true
         All Submap Pose Markers: true
         Trajectory 0:
-          0.6: true
+          0.180: true
+          1.180: true
+          2.101: true
+          3.11: true
+          Submap Pose Markers: true
+          Value: true
+        Trajectory 8:
+          0.5: true
           Submap Pose Markers: true
           Value: true
       Topic: /submap_list
@@ -178,13 +140,13 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /trajectory_node_list
       Name: Trajectories
       Namespaces:
-        Trajectory 0: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/MarkerArray
       Enabled: true
       Marker Topic: /landmark_poses_list
@@ -230,7 +192,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 14.700397491455078
+      Distance: 35.77647399902344
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -246,9 +208,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8247972130775452
+      Pitch: 1.3547965288162231
       Target Frame: <Fixed Frame>
-      Yaw: 0.4750135540962219
+      Yaw: 2.2250185012817383
     Saved: ~
 Window Geometry:
   Displays:

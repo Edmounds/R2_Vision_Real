@@ -44,7 +44,7 @@
 
   <!-- 启动Cartographer栅格地图节点 -->
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-      type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+      type="cartographer_occupancy_grid_node" args="-resolution 0.05 -pure_localization 1" />
 
   <!-- 启动初始位置设置节点 -->
   <node name="initial_pose_node" pkg="conqu_vision" type="initial_pose_node" output="screen" />
