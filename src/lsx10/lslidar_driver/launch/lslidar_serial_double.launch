@@ -15,7 +15,7 @@
     <param name="high_reflection" value="false"/>                  # M10_P 专用参数
 
     <!-- 屏蔽角度设置 -->
-    <param name="truncated_mode" value="0"/>                       # 启用屏蔽角度（根据需要调整）
+    <param name="truncated_mode" value="1"/>                       # 启用屏蔽角度（根据需要调整）
     <rosparam param="disable_min">[10]</rosparam>                  
     <rosparam param="disable_max">[170]</rosparam>                 
 
@@ -37,7 +37,7 @@
     <param name="high_reflection" value="false"/>                  # M10_P 专用参数
 
     <!-- 屏蔽角度设置 -->
-    <param name="truncated_mode" value="0"/>                       # 启用屏蔽角度（根据需要调整）
+    <param name="truncated_mode" value="1"/>                       # 启用屏蔽角度（根据需要调整）
 
     <rosparam param="disable_min">[100]</rosparam>                 # 屏蔽角度最小值
     <rosparam param="disable_max">[260]</rosparam>                 # 屏蔽角度最大值

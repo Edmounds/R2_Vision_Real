@@ -144,7 +144,9 @@ cv::Rect detectImg(cv::Mat img_input){
             }
         }
 
-        if (max_confidence > best_conf && max_confidence > 0.5f) {
+        // ROS_INFO("111111");
+
+        if (max_confidence > best_conf && max_confidence > 0.1f) {
             float x1 = (x_center - width / 2) * scale_x;
             float y1 = (y_center - height / 2) * scale_y;
             float x2 = (x_center + width / 2) * scale_x;
@@ -231,9 +233,8 @@ void ccb(
         return;
     }
 
-    /* 在输入图上框出识别范围 */
+    // 在输入图上框出识别范围并显示
     cv::rectangle(rgb_image, detected_bbox, cv::Scalar(0, 255, 0), 2);
-
     cv_bridge::CvImage out_msg_yolo;
     out_msg_yolo.header = rgb_msg->header;
     out_msg_yolo.encoding = sensor_msgs::image_encodings::BGR8;
@@ -261,9 +262,23 @@ void ccb(
     // 裁剪检测到的区域
     cv::Mat cropped_image = fused_image(enlarged_bbox).clone();
 
+    // 转换到 HSV 颜色空间
+    cv::Mat hsv_image;
+    cv::cvtColor(cropped_image, hsv_image, cv::COLOR_BGR2HSV);
+    // 将红色外像素转换为黑色
+    cv::Mat mask;
+    // 检测红色区域：H分量>240或<15
+    cv::Mat mask1, mask2;
+    cv::inRange(hsv_image, cv::Scalar(0, 100, 100), cv::Scalar(15, 255, 255), mask1);
+    cv::inRange(hsv_image, cv::Scalar(165, 100, 100), cv::Scalar(180, 255, 255), mask2);
+    cv::bitwise_or(mask1, mask2, mask);
+    cv::bitwise_and(cropped_image, mask, cropped_image);
+
+    // 进行 Canny 边缘检测
     cv::Mat canny_image;
     cv::Canny(cropped_image, canny_image, 100, 200);
 
+    // 进行霍夫直线拟合
     std::vector<cv::Vec4i> lines;
     int hough_threshold = 50;
     int min_line_length = static_cast<int>(canny_image.cols * 0.4);

@@ -9,7 +9,7 @@
         "/home/rc1/wzn/catkin_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
     ],
-    "cmake.sourceDirectory": "/home/rc1/cqc/R2_Real_ws/src/OrbbecSDK_ROS1-2-main",
+    "cmake.sourceDirectory": "/home/rc1/cqc/R2_Real_ws/build/catkin_tools_prebuild",
     "files.associations": {
         "cctype": "cpp",
         "clocale": "cpp",

@@ -1,0 +1,7 @@
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/camera_deliver.cpp:[m[K In function ‘[01m[Kint main()[m[K’:
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/camera_deliver.cpp:167:1:[m[K [01;31m[Kerror: [m[K‘[01m[Kf[m[K’ was not declared in this scope
+  167 | [01;31m[Kf[m[K
+      | [01;31m[K^[m[K
+make[2]: *** [CMakeFiles/camera_deliver.dir/build.make:63：CMakeFiles/camera_deliver.dir/src/camera_deliver.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:845：CMakeFiles/camera_deliver.dir/all] 错误 2
+make: *** [Makefile:141：all] 错误 2

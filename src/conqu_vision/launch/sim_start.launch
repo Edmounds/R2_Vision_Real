@@ -1,5 +1,5 @@
 <launch>   
-     <param name="/localization" type="bool" value = "0"/>
+    <param name="/localization" type="bool" value = "0"/>
 
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find conqu_vision)/worlds/conqu.world"/>
@@ -22,7 +22,7 @@
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
-     <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"/>
+    <node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering"/>
 
         <!-- 启动 merge.launch（激光雷达融合） -->
     <!-- <include file="$(find conqu_vision)/launch/merge.launch" /> -->
@@ -36,7 +36,7 @@
     </node>
 
     <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
-      type="cartographer_occupancy_grid_node" args="-resolution 0.1" />
+        type="cartographer_occupancy_grid_node" args="-resolution 0.1" />
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find conqu_vision)/rviz/sim.rviz" /> 
 

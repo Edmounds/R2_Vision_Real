@@ -1,0 +1,31 @@
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:[m[K In function ‘[01m[Kvoid scanCallback(const ConstPtr&, ros::Publisher&, ros::NodeHandle&)[m[K’:
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:90:16:[m[K [01;31m[Kerror: [m[K‘[01m[Kline_prev[m[K’ was not declared in this scope
+   90 |        if (abs([01;31m[Kline_prev[m[K.k - k) < 0.05 and abs(line_prev.b - b) < cropped_image.rows * 0.05) {
+      |                [01;31m[K^~~~~~~~~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:90:62:[m[K [01;31m[Kerror: [m[K‘[01m[Kb[m[K’ was not declared in this scope
+   90 |        if (abs(line_prev.k - k) < 0.05 and abs(line_prev.b - [01;31m[Kb[m[K) < cropped_image.rows * 0.05) {
+      |                                                              [01;31m[K^[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:90:67:[m[K [01;31m[Kerror: [m[K‘[01m[Kcropped_image[m[K’ was not declared in this scope
+   90 |        if (abs(line_prev.k - k) < 0.05 and abs(line_prev.b - b) < [01;31m[Kcropped_image[m[K.rows * 0.05) {
+      |                                                                   [01;31m[K^~~~~~~~~~~~~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:91:20:[m[K [01;31m[Kerror: [m[Kexpected ‘[01m[K;[m[K’ before ‘[01m[K}[m[K’ token
+   91 |         lines.erase
+      |                    [01;31m[K^[m[K
+      |                    [32m[K;[m[K
+   92 |     [32m[K}[m[K
+      |     [32m[K~[m[K               
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:91:15:[m[K [01;31m[Kerror: [m[Kstatement cannot resolve address of overloaded function
+   91 |         [01;31m[Klines.erase[m[K
+      |         [01;31m[K~~~~~~^~~~~[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:107:33:[m[K [01;31m[Kerror: [m[Ka function-definition is not allowed here before ‘[01m[K{[m[K’ token
+  107 | int main(int argc, char** argv) [01;31m[K{[m[K
+      |                                 [01;31m[K^[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:118:1:[m[K [01;31m[Kerror: [m[Kexpected ‘[01m[K}[m[K’ at end of input
+  118 | [01;31m[K}[m[K
+      | [01;31m[K^[m[K
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:53:113:[m[K [01;36m[Knote: [m[Kto match this ‘[01m[K{[m[K’
+   53 | void scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg, ros::Publisher& target_pub, ros::NodeHandle& nh) [01;36m[K{[m[K
+      |                                                                                                                 [01;36m[K^[m[K
+make[2]: *** [CMakeFiles/data_process_node.dir/build.make:63：CMakeFiles/data_process_node.dir/src/data_process.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:1064：CMakeFiles/data_process_node.dir/all] 错误 2
+make: *** [Makefile:141：all] 错误 2

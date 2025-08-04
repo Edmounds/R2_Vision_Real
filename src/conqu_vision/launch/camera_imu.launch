@@ -1,7 +1,5 @@
 <launch>
     <include file="$(find orbbec_camera)/launch/gemini_330_series.launch">
-    
-
         <arg name="camera_name" value="camera"/>
         <arg name="enable_accel" value="true"/>
         <arg name="enable_gyro" value="true"/>

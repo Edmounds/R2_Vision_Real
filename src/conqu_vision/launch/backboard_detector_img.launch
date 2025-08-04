@@ -22,7 +22,7 @@
     <arg name="color_height" value="480"/>
     <arg name="color_fps" value="6"/>
     <arg name="depth_registration" value="true"/>
-    <arg name="depth_precision" value="1mm"/>
+    <!-- <arg name="depth_precision" value="1mm"/> -->
     <arg name="enable_noise_removal_filter" value="true"/>
     <arg name="enable_temporal_filter" value="true"/>
     <arg name="enable_threshold_filter" value="true"/>
@@ -34,7 +34,7 @@
 
     <!-- 开启彩色点云模式 -->
     <!-- <arg name="enable_colored_point_cloud" value="true"/> -->
-    <arg name="disaparity_to_depth_mode" value="HW"/>
+    <!-- <arg name="disaparity_to_depth_mode" value="HW"/> -->
     <arg name="enable_d2c_viewer" value="true"/>
   </include>
   
@@ -58,7 +58,7 @@
   </group>
 
   <!-- 启动篮球框检测节点 -->
-  <node name="backboard_detector_cpp" pkg="conqu_vision" type="backboard_detector" output="screen">
+  <node name="backboard_detector" pkg="conqu_vision" type="backboard_detector" output="screen">
     <!-- 指定使用的点云话题 -->
     <!-- <remap from="/camera/depth/points" to="/camera/depth_registered/points"/> -->
   </node>
@@ -68,8 +68,7 @@
   <arg name="camera_mount_tilt_angle" default="-0.785"/>
 
   <!-- 加载相机的URDF模型 -->
-  <param name="robot_description" 
-         command="$(find xacro)/xacro '$(find orbbec_camera)/urdf/gemini335_336.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro '$(find orbbec_camera)/urdf/gemini335_336.urdf.xacro'" />
 
   <!-- 启动robot_state_publisher，发布URDF中定义的TF变换 -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">

@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
   message_generation
+  cartographer_ros  # 新增cartographer_ros依赖
 )
 
 find_package(OpenCV REQUIRED)
@@ -137,7 +138,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES conqu_lightstrip_sim
-  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros message_runtime
+  CATKIN_DEPENDS cv_bridge roscpp sensor_msgs std_msgs geometry_msgs tf2 tf2_ros tf2_sensor_msgs tf2_geometry_msgs pcl_conversions pcl_ros message_runtime cartographer_ros  # 添加cartographer_ros
   DEPENDS PCL serial
 )
 
@@ -168,13 +169,13 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/conqu_localization_node.cpp)
 
 # 添加篮球框识别节点
-# add_executable(backboard_detector src/backboard_detector.cpp)
-# add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(backboard_detector
-#   ${catkin_LIBRARIES}
-#   ${PCL_LIBRARIES}
-#   openvino::runtime
-# )
+add_executable(backboard_detector src/backboard_detector.cpp)
+add_dependencies(backboard_detector ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(backboard_detector
+  ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+  openvino::runtime
+)
 
 # add_executable(backboard_detector_points src/backboard_detector_points.cpp)
 # add_dependencies(backboard_detector_points ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -211,6 +212,9 @@ add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 add_executable(data_process_node src/data_process.cpp)
 target_link_libraries(data_process_node ${catkin_LIBRARIES})
 
+add_executable(initial_pose_node src/pose_initializer.cpp)
+target_link_libraries(initial_pose_node ${catkin_LIBRARIES})
+add_dependencies(initial_pose_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

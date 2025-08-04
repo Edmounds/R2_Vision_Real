@@ -1,0 +1,7 @@
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/data_process.cpp:9:10:[m[K [01;31m[Kfatal error: [m[Kcartographer_ros_msgs/FinishTrajectory.h: 没有那个文件或目录
+    9 | #include [01;31m[K<cartographer_ros_msgs/FinishTrajectory.h>[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/data_process_node.dir/build.make:63：CMakeFiles/data_process_node.dir/src/data_process.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:1064：CMakeFiles/data_process_node.dir/all] 错误 2
+make: *** [Makefile:141：all] 错误 2

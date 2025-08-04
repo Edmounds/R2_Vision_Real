@@ -17,15 +17,44 @@
             max-width: 100%;
             max-height: 100%;
         }
+        .error-message {
+            color: #ff0000;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <img id="camera-feed" src="http://192.168.8.178:8080" alt="摄像头画面">
+    <div>
+        <img id="camera-feed" src="http://192.168.110.177:8080" alt="摄像头画面">
+        <p id="error-message" class="error-message">无法连接到摄像头</p>
+    </div>
     <script>
         const img = document.getElementById('camera-feed');
-        setInterval(() => {
-            img.src = `http://192.168.8.178:8080?timestamp=${new Date().getTime()}`;
-        }, 100); // 每 100 毫秒刷新一次
+        const errorMessage = document.getElementById('error-message');
+        
+        function updateImage() {
+            // 使用毫秒级时间戳，与后端保持一致
+            const timestamp = Date.now();
+            const newSrc = `http://192.168.110.177:8080?t=${timestamp}`;
+            
+            // 创建新的Image对象来测试加载
+            const testImg = new Image();
+            testImg.onload = function() {
+                img.src = newSrc;
+                errorMessage.style.display = 'none';
+            };
+            testImg.onerror = function() {
+                errorMessage.style.display = 'block';
+            };
+            testImg.src = newSrc;
+        }
+        
+        // 初始加载
+        updateImage();
+        
+        // 定时刷新
+        setInterval(updateImage, 100); // 每100毫秒刷新一次
     </script>
 </body>
 </html>

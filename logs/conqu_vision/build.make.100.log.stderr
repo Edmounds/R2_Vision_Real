@@ -1,0 +1,8 @@
+[01m[K/home/rc1/cqc/R2_Real_ws/src/conqu_vision/src/pose_initializer.cpp:5:10:[m[K [01;31m[Kfatal error: [m[Kcartographer_ros_msgs/FinishTrajectory.h: 没有那个文件或目录
+    5 | #include [01;31m[K<cartographer_ros_msgs/FinishTrajectory.h>[m[K
+      |          [01;31m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+compilation terminated.
+make[2]: *** [CMakeFiles/pose_initializer.dir/build.make:63：CMakeFiles/pose_initializer.dir/src/pose_initializer.cpp.o] 错误 1
+make[1]: *** [CMakeFiles/Makefile2:323：CMakeFiles/pose_initializer.dir/all] 错误 2
+make[1]: *** 正在等待未完成的任务....
+make: *** [Makefile:141：all] 错误 2

@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <launch>
+  <!-- 设置初始定位参数 -->
   <param name="/localization" type="bool" value="1"/>
-  <param name="/set_inital_pose_x" type="double" value="0"/>
-  <param name="/set_inital_pose_y" type="double" value="0"/>
+  <param name="/set_inital_pose_x" type="double" value="2"/>
+  <param name="/set_inital_pose_y" type="double" value="1"/>
   <param name="/set_inital_pose_z" type="double" value="0.0"/>
   <param name="/set_inital_pose_ox" type="double" value="0.0"/>
   <param name="/set_inital_pose_oy" type="double" value="0.0"/>
   <param name="/set_inital_pose_oz" type="double" value="0"/>
   <param name="/set_inital_pose_ow" type="double" value="1"/>
 
-  <!-- 直接设置参数到 ROS 参数服务器 -->
-  <param name="point_of_interest/x" value="-2" />
+  <!-- 直接设置兴趣点参数到 ROS 参数服务器 -->
+  <param name="point_of_interest/x" value="1" />
   <param name="point_of_interest/y" value="1" />
   <param name="point_of_interest/z" value="0.0" />
   <param name="point_of_interest/qx" value="0.0" />
@@ -18,10 +19,18 @@
   <param name="point_of_interest/qz" value="0.0" />
   <param name="point_of_interest/qw" value="1.0" />
 
-   <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
+  <!-- 启动激光雷达驱动 -->
+  <include file="$(find lslidar_driver)/launch/lslidar_serial_double.launch" />
+  <!-- <include file="$(find laser_double)/launch/laser_double.launch" /> -->
+
+  <!-- 启动TF发布节点 -->
+  <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
+
+  <!-- 启动点云合并节点 -->
+  <include file="$(find conqu_vision)/launch/merge.launch" />
 
   <!-- 定义地图文件路径参数 -->
-  <arg name="load_state_filename" default="$(find conqu_vision)/maps/map.pbstream" />
+  <arg name="load_state_filename" default="$(find conqu_vision)/maps/map20250804.pbstream" />
 
   <!-- 启动Cartographer定位节点 -->
   <node name="cartographer_node" pkg="cartographer_ros"
@@ -37,8 +46,8 @@
   <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros"
       type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
 
-  <!-- 启动 data_process_node，无需重复设置参数 -->
-  <node name="data_process_node" pkg="conqu_vision" type="data_process_node" output="screen" />
+  <!-- 启动初始位置设置节点 -->
+  <node name="initial_pose_node" pkg="conqu_vision" type="initial_pose_node" output="screen" />
 
   <!-- 启动RViz可视化 -->
   <node name="rviz" pkg="rviz" type="rviz" required="true"

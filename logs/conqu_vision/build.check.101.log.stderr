@@ -1,0 +1,12 @@
+** WARNING ** io features related to pcap will be disabled
+** WARNING ** io features related to png will be disabled
+** WARNING ** io features related to libusb-1.0 will be disabled
+[31m[1mCMake Error[0m at /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake:224 (message):
+  catkin_package() DEPENDS on the catkin package 'f2_ros' which must
+  therefore be listed as a run dependency in the package.xml
+[36mCall Stack (most recent call first):[0m
+  /opt/ros/noetic/share/catkin/cmake/catkin_package.cmake:102 (_catkin_package)
+  CMakeLists.txt:141 (catkin_package)
+
+
+make: *** [Makefile:1844：cmake_check_build_system] 错误 1
