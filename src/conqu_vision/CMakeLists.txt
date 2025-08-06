@@ -212,6 +212,13 @@ add_dependencies(camera_deliver ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXP
 add_executable(data_process_node src/data_process.cpp)
 target_link_libraries(data_process_node ${catkin_LIBRARIES})
 
+add_executable(depth_localization_node src/depth_localization.cpp)
+target_link_libraries(depth_localization_node
+  ${catkin_LIBRARIES}
+  ${MICROHTTPD_LIBRARIES}
+)
+target_link_libraries(depth_localization_node ${catkin_LIBRARIES})
+
 add_executable(initial_pose_node src/pose_initializer.cpp)
 target_link_libraries(initial_pose_node ${catkin_LIBRARIES})
 add_dependencies(initial_pose_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

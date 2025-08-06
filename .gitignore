@@ -1,6 +1,7 @@
 build/
 devel/
+logs/
 *.7z
 *.zip
 *.tar.gz
-/src/cartographer
+# /src/cartographer

@@ -2,6 +2,7 @@ conqu_vision
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/backboard_detector /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/backboard_detector
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/data_process_node /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/data_process_node
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/serial_comm /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/serial_comm
+/home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/depth_localization_node /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/depth_localization_node
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/serial_send /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/serial_send
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/initial_pose_node /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/initial_pose_node
 /home/rc1/cqc/R2_Real_ws/devel/.private/conqu_vision/lib/conqu_vision/camera_deliver /home/rc1/cqc/R2_Real_ws/devel/lib/conqu_vision/camera_deliver

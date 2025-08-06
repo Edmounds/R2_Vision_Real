@@ -1,0 +1,5 @@
+dm_imu
+/home/rc1/cqc/R2_Real_ws/devel/.private/dm_imu/lib/pkgconfig/dm_imu.pc /home/rc1/cqc/R2_Real_ws/devel/lib/pkgconfig/dm_imu.pc
+/home/rc1/cqc/R2_Real_ws/devel/.private/dm_imu/lib/dm_imu/dm_imu_node /home/rc1/cqc/R2_Real_ws/devel/lib/dm_imu/dm_imu_node
+/home/rc1/cqc/R2_Real_ws/devel/.private/dm_imu/share/dm_imu/cmake/dm_imuConfig-version.cmake /home/rc1/cqc/R2_Real_ws/devel/share/dm_imu/cmake/dm_imuConfig-version.cmake
+/home/rc1/cqc/R2_Real_ws/devel/.private/dm_imu/share/dm_imu/cmake/dm_imuConfig.cmake /home/rc1/cqc/R2_Real_ws/devel/share/dm_imu/cmake/dm_imuConfig.cmake

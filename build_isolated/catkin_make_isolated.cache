@@ -1,2 +1,0 @@
-OrbbecSDK_ROS1:conqu_vision:lsx10/lslidar:lsx10/lslidar_driver:lsx10/lslidar_msgs
--G Ninja -DCATKIN_DEVEL_PREFIX=/home/rc1/cqc/R2_Real_ws/devel_isolated -DCMAKE_INSTALL_PREFIX=/home/rc1/cqc/R2_Real_ws/install_isolated

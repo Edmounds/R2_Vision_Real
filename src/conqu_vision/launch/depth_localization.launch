@@ -1,0 +1,52 @@
+<launch>
+  <!-- 启动 Orbbec Gemini 335 相机，直接设置相机参数 -->
+  <include file="$(find orbbec_camera)/launch/gemini_330_series.launch">
+    <arg name="camera_name" value="camera"/>
+    <arg name="enable_point_cloud" value="false"/>
+    <arg name="enable_depth" value="true"/>
+    <arg name="depth_width" value="848"/>
+    <arg name="depth_height" value="480"/>
+    <arg name="depth_fps" value="30"/>
+    <arg name="enable_color" value="true"/>
+    <arg name="color_width" value="640"/>
+    <arg name="color_height" value="480"/>
+    <arg name="color_fps" value="30"/>
+    <!-- <arg name="depth_registration" value="true"/> -->
+    <!-- <arg name="depth_precision" value="1mm"/> -->
+    <arg name="enable_noise_removal_filter" value="true"/>
+    <arg name="enable_temporal_filter" value="true"/>
+    <arg name="enable_threshold_filter" value="true"/>
+    <arg name="threshold_filter_min" value="500"/>
+    <arg name="threshold_filter_max" value="8000"/>
+  </include>
+  
+  <!-- 相机内参参数 -->
+  <!-- <group ns="camera">
+    <param name="fx" value="460.587" />
+    <param name="fy" value="460.748" />
+    <param name="cx" value="327.796" />
+    <param name="cy" value="243.640" />
+  </group> -->
+
+  <!-- 深度图像处理参数 -->
+  <group ns="depth_processing">
+    <param name="median_blur_ksize" value="5" />
+    <param name="depth_threshold" value="150.0" />
+    <param name="canny_threshold1" value="50.0" />
+    <param name="canny_threshold2" value="150.0" />
+    <param name="min_aspect_ratio" value="1.5" />
+    <param name="max_aspect_ratio" value="3.0" />
+    <param name="min_area" value="1000.0" />
+  </group>
+  
+  <node name="depth_localization_node" pkg="conqu_vision" type="depth_localization_node" output="screen"></node>
+
+  <!-- 启动串口通信节点-->
+  <node pkg="conqu_vision" type="serial_comm" name="serial_node" output="screen">
+    <param name="port" value="/dev/ttyUSB0" />  <!-- 串口设备路径 -->
+    <param name="baud" value="115200" />        <!-- 波特率 -->
+  </node>
+
+  <!-- 串口数据发送节点 -->
+  <node pkg="conqu_vision" type="serial_send" name="serial_sender_node" />
+</launch>

@@ -67,6 +67,8 @@ int main(int argc, char** argv) {
     // 订阅目标位置话题
     ros::Subscriber target_sub = nh.subscribe("/target", 10, targetCallback);
 
+    ROS_INFO("Serial Sender initialized.");
+
     ros::Publisher pub = nh.advertise<conqu_vision::ByteArray>("serial_send", 10);
 
     ros::Rate loop_rate(100); // 设置发送频率

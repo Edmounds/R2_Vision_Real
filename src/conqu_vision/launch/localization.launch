@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
 <launch>
+
+
   <!-- 设置初始定位参数 -->
   <param name="/localization" type="bool" value="1"/>
-  <param name="/set_inital_pose_x" type="double" value="2"/>
-  <param name="/set_inital_pose_y" type="double" value="1"/>
+  <param name="/set_inital_pose_x" type="double" value="0.0"/>
+  <param name="/set_inital_pose_y" type="double" value="0.0"/>
   <param name="/set_inital_pose_z" type="double" value="0.0"/>
   <param name="/set_inital_pose_ox" type="double" value="0.0"/>
   <param name="/set_inital_pose_oy" type="double" value="0.0"/>
   <param name="/set_inital_pose_oz" type="double" value="0"/>
   <param name="/set_inital_pose_ow" type="double" value="1"/>
+
+
 
   <!-- 直接设置兴趣点参数到 ROS 参数服务器 -->
   <param name="point_of_interest/x" value="1" />
@@ -30,7 +34,7 @@
   <include file="$(find conqu_vision)/launch/merge.launch" />
 
   <!-- 定义地图文件路径参数 -->
-  <arg name="load_state_filename" default="$(find conqu_vision)/maps/map20250804.pbstream" />
+  <arg name="load_state_filename" default="$(find conqu_vision)/maps/map20250805.pbstream" />
 
   <!-- 启动Cartographer定位节点 -->
   <node name="cartographer_node" pkg="cartographer_ros"

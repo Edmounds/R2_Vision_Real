@@ -1,9 +1,0 @@
-<launch>
-    <!-- 启动 LSLIDAR 激光雷达驱动 -->
-    <!-- <include file="$(find lslidar_driver)/launch/lslidar_serial_double.launch" /> -->
-    <!-- <include file="$(find laser_double)/launch/laser_double.launch" /> -->
-
-    <include file="$(find conqu_vision)/launch/tf_publisher.launch" />
-    <!-- 启动 imu -->
-    <include file="$(find conqu_vision)/launch/camera_imu.launch" />
-</launch>
